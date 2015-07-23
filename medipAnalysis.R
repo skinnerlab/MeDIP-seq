@@ -131,7 +131,10 @@ for (analysis in 1:length(comparison)){
   MTCmethList3pEtc<-lapply(1:length(MTCmethList), function (i) {
           if (nrow(MTCmethList3p[[i]])>0 && !is.na(MTCmethList3p[[i]])){
                if (!is.na(MTCmethList3p[[i]])&&!is.na(MTCmethListEtc[[i]])){
+                    if (!is.null(nrow(MTCmethListEtc[[i]]))){
                        MTCmethListEtc[[i]][which(MTCmethList[[i]]$length>100),]
+                         ## Below is temporary fix. Do this right later!
+                    } else { MTCmethListEtc[[i]] }
                } else { NA }
            } else { NA }
        })
@@ -164,31 +167,31 @@ for (analysis in 1:length(comparison)){
   if (annotationType=="gff"){
        gff<-import.gff(paste(genomeDirectory, annotationGFF, sep=""))
        methList<-lapply(methList, function(i){
-            addAnnotationGFF(dmrList=i, gff=gff, maxDMR=maxDMRnum)
+            addAnnotationGFF(dmrList=i, gff=gff, maxDMR=maxDMRnum, chrPrefix=chrPrefix)
        })
        MTCmethList<-lapply(MTCmethList, function(i){
-            addAnnotationGFF(dmrList=i, gff=gff, maxDMR=maxDMRnum)
+            addAnnotationGFF(dmrList=i, gff=gff, maxDMR=maxDMRnum, chrPrefix=chrPrefix)
        })
        methList3p<-lapply(methList3p, function(i){
-            addAnnotationGFF(dmrList=i, gff=gff, maxDMR=maxDMRnum)
+            addAnnotationGFF(dmrList=i, gff=gff, maxDMR=maxDMRnum, chrPrefix=chrPrefix)
        })
        MTCmethList3p<-lapply(MTCmethList3p, function(i){
-            addAnnotationGFF(dmrList=i, gff=gff, maxDMR=maxDMRnum)
+            addAnnotationGFF(dmrList=i, gff=gff, maxDMR=maxDMRnum, chrPrefix=chrPrefix)
        })
   }
   if (annotationType=="biomart"){
        annotationObject<-MEDIPS.getAnnotation(host=biomartHost, dataset=biomartDataset, annotation=c("GENE"), chr=chr.select)
        methList<-lapply(methList, function(i){
-            addAnnotationBiomart(dmrList=i, annotationObject=annotationObject, maxDMR=maxDMRnum)
+            addAnnotationBiomart(dmrList=i, annotationObject=annotationObject, maxDMR=maxDMRnum, chrPrefix=chrPrefix)
        })
        MTCmethList<-lapply(MTCmethList, function(i){
-            addAnnotationBiomart(dmrList=i, annotationObject=annotationObject, maxDMR=maxDMRnum)
+            addAnnotationBiomart(dmrList=i, annotationObject=annotationObject, maxDMR=maxDMRnum, chrPrefix=chrPrefix)
        })
        methList3p<-lapply(methList3p, function(i){
-            addAnnotationBiomart(dmrList=i, annotationObject=annotationObject, maxDMR=maxDMRnum)
+            addAnnotationBiomart(dmrList=i, annotationObject=annotationObject, maxDMR=maxDMRnum, chrPrefix=chrPrefix)
        })
        MTCmethList3p<-lapply(MTCmethList3p, function(i){
-            addAnnotationBiomart(dmrList=i, annotationObject=annotationObject, maxDMR=maxDMRnum)
+            addAnnotationBiomart(dmrList=i, annotationObject=annotationObject, maxDMR=maxDMRnum, chrPrefix=chrPrefix)
        })
   }
   

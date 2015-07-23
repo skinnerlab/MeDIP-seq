@@ -1,0 +1,92 @@
+---
+output: pdf_document
+---
+
+<!-- Created by Daniel Beck on 7/9/2015 -->
+<!-- Modified: -->
+<!--      7/10/2015 Continued development -->
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+source("dataNames.R")
+source("customFunctions.R")
+library(pander)
+library(bsgenomePackageName, character.only=T, lib.loc=genomeDirectory)
+
+
+# select the desired comparison
+analysis<-"all"
+an<-which(comparisonNames==analysis)
+
+# select P-value to use
+selectedPvalue<-1e-4
+# list position for these p-values
+pvc<-which(pValues==selectedPvalue)
+
+# load results
+load(paste(resultsDirectory, analysis, "/results.RData", sep=""))
+source("customFunctions.R")
+
+# function to extract mapping information
+mapExtract<-function(){
+     prepareData<-readLines("prepareData.Rout")
+     sn<-c(seqFiles$sampleName[comparison[[an]]$mset1],seqFiles$sampleName[comparison[[an]]$mset2])
+     pct<-sapply(strsplit(prepareData[sapply(sn, function(i) grep(pattern=paste("Running Bowtie2 on ", i, '\"', sep=""), x=prepareData))+15], split=" "), function(i) i[1])
+     rn<-sapply(strsplit(prepareData[sapply(sn, function(i) grep(pattern=paste("Running Bowtie2 on ", i, '\"', sep=""), x=prepareData))+1], split=" "), function(i) i[1])
+     outTable<-as.data.frame(rbind(rn, pct))
+     colnames(outTable)<-sn
+     rownames(outTable)<-c("read number", "overall alignment rate")
+     return(outTable)
+}
+
+```
+
+
+# MeDIP analysis summary for the `r projectName` project (`r comparisonNames[an]`).
+Report generated `r format(Sys.Date(), format="%B %d %Y")`
+
+## Sample comparison
+The samples `r paste(seqFiles$sampleName[comparison[[an]]$mset1], collapse=", ")` were compared with the samples `r paste(seqFiles$sampleName[comparison[[an]]$mset2], collapse=", ")`. The samples were analyzed in `r ifelse(comparison[[an]]$pairs[1], 'pairs', 'groups')`. The *`r species`* reference genome was provided by `r provider` and was downloaded from `r genomeSourceFiles`.
+
+```{r, echo=FALSE, results="asis", message=FALSE, warning=FALSE}
+if (mapReads){
+     pandoc.table(mapExtract(), split.tables=Inf, style="rmarkdown", caption='This table shows the number of reads present for each sample and the overall alignment rate calculated by bowtie2.')
+}
+```
+
+
+## Differential coverage analysis
+The differential coverage analysis was performed using the MEDIPS R package. The analysis used a windows size of `r ws`bp. The `r diff.method` method was used to calculate p-values. Annotation information was downloaded from `r ifelse(annotationType=="biomart", 'the Ensembl database using the biomaRt R package', annotationSource)`.
+
+```{r, echo=FALSE, results="asis", message=FALSE, warning=FALSE}
+# this table can be deleted, it is already calculated by medipAnalysis.
+dmrNumberTable<-cbind(
+     "p-value"=pValues,
+      "singleWindows"=sapply(methList, nrow),
+      "multipleWindows"=sapply(methList3p,nrow)
+     )
+dmrNumberTable<-as.data.frame(dmrNumberTable)
+pandoc.table(dmrNumberTable, split.tables=110, style="rmarkdown", caption="This table shows the number of DMRs found using different edgeR p-value cutoff thresholds.")
+
+```
+
+************
+
+## Chromosome plot
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=8}
+chrLengths<-seqlengths(eval(parse(text=referenceName)))
+names(chrLengths)<-paste(chrPrefix, names(chrLengths), sep="")
+plotChromosomes(siteTable=methList3p[[pvc]], chrLengths=chrLengths, ymar=5)
+```
+
+**Figure 1.** This figure shows the DMR locations on the individual chromosomes or contigs. Only multiple window DMRs at a p-value threshold of `r format(selectedPvalue,scientific=T)` are shown here.
+
+******
+
+## CpG density histogram
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=6}
+plotCpGdensity(methList3p[[pvc]], main="", xlab="Number of CpG sites per 100bp", ylab="Number of differential DNA methylation regions")
+```
+
+**Figure 2.** This figure is a histogram of the number of DMRs at different CpG densities. Only multiple window DMRs at a p-value threshold of `r format(selectedPvalue,scientific=T)` are shown here.

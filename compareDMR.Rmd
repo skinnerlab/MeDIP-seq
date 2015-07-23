@@ -1,0 +1,91 @@
+---
+title: "DMR comparison"
+output: pdf_document
+---
+
+<!-- Created by Daniel Beck on 7/14/2015 -->
+<!-- Modified: -->
+<!--      7/21/2015 Continued development. Tested on Finch datasets. -->
+
+<!-- This script compares two (or more?) lists of DMR (or more generally, chromosome regions) and generates potentially useful figures and tables. -->
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(pander)
+library(GenomicRanges)
+library(VennDiagram)
+source("customFunctions.R")
+
+# define datasets to compare
+comparisonNames<-c("50bp", "100bp", "400bp", "1000bp")
+analysisNames<-c("all50", "all100", "all400", "all1000")
+resultsFiles<-c(paste("/projects/steelheadSperm/results/", analysisNames, "/results.RData", sep=""))
+# define p-values to use
+selectedPvalues<-rep(1e-5, 4)
+# can be singleWindows, multipleWindows, MTCsingleWindows, MTCmultipleWindows
+pValueType<-rep("singleWindows", 4)
+
+resultsList<-list()
+dmrNumberList<-list()
+for (i in 1:length(comparisonNames)){
+     # load results into temporary environment
+     temp = local({load(resultsFiles[[i]]); environment()})
+     dmrNumberList[[i]]<-temp$dmrNumberTable
+     # find correct p-value
+     spv<-which(temp$pValues==selectedPvalues[[i]])
+     # extract selected DMR list
+     if (pValueType[i]=="singleWindows"){
+          resultsList[[i]]<-temp$methList[[spv]]
+     } else if (pValueType[i]=="multipleWindows"){
+          resultsList[[i]]<-temp$methList3p[[spv]]
+     } else if (pValueType[i]=="MTCsingleWindows"){
+          resultsList[[i]]<-temp$MTCmethList[[spv]]
+     } else if (pValueType[i]=="MTCmultipleWindows"){
+          resultsList[[i]]<-temp$MTCmethList3p[[spv]]
+     } else {
+          warning("Invalid pValueType")
+     }
+     rm(temp)
+}
+
+# make sure chromosome start and stop are numeric
+resultsList<-lapply(resultsList, function(i){
+     i$start<-as.numeric(i$start)
+     i$stop<-as.numeric(i$stop)
+     i
+})
+# convert resultsList DMR tables to GRanges objects
+gresultsList<-lapply(resultsList, makeGRangesFromDataFrame)
+
+```
+
+# Comparison information (`r format(Sys.Date(), format="%B %d %Y")`)
+This report compares the `r paste(comparisonNames, collapse=", ")` datasets. 
+
+### Number of DMRs at different edgeR p-value thresholds
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results="asis"}
+     matrix(unlist(lapply(dmrNumberList, function(i) i[,3])), ncol=length(dmrNumberList))
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results="asis"}
+summaryTable<-cbind(" "=LETTERS[1:length(comparisonNames)], "analysis"=comparisonNames, "p-value type"= pValueType, "p-value"=selectedPvalues, "DMR Number"=sapply(resultsList, nrow))
+summaryTable<-as.data.frame(summaryTable)
+pandoc.table(summaryTable, split.tables=Inf, style="rmarkdown", caption='This table shows the p-values and total DMR numbers for each analysis.')
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+nameLabels<-paste(LETTERS[1:length(comparisonNames)], sapply(resultsList, nrow), sep=":")
+if (length(comparisonNames)==4){
+     silent<-vennCustomFour(a=gresultsList[[1]], b=gresultsList[[2]], c=gresultsList[[3]], d=gresultsList[[4]], names=nameLabels)
+} else if (length(comparisonNames)==3){
+     silent<-vennCustomThree(a=gresultsList[[1]], b=gresultsList[[2]], c=gresultsList[[3]], names=nameLabels)
+} else if (length(comparisonNames)==2){
+     silent<-vennCustomTwo(a=gresultsList[[1]], b=gresultsList[[2]], names=nameLabels)
+} else {
+     warning("No valid comparison")
+}
+```
+
+**Figure 1.** This figure shows the number of overlapping DMRs in the different analyses. The numbers shown in this Venn diagram may not be perfectly accurate. Because a single DMR may be composed of multiple adjacent windows, the number of overlapping DMRs between two samples may be different depending on whether the DMRs are counted in the first sample or the second sample. For example, a long DMR in sample A may span the same genomic coordinates as two short DMRs in sample B. From the perspective of sample A, there is a single DMR that overlaps. From the perspective of sample B there are two overlapping DMRs. 
+

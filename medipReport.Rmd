@@ -29,6 +29,7 @@ MTCpvc<-which(pValues==MTCselectedPvalue)
 
 # load results
 load(paste(resultsDirectory, analysis, "/results.RData", sep=""))
+source("customFunctions.R")
 
 # function to extract mapping information
 mapExtract<-function(){
@@ -44,7 +45,7 @@ mapExtract<-function(){
 
 ```
 
-This report summarizes the results from the `r projectName` project. It was generated on `r format(Sys.Date(), format="%B %d %Y")`.
+This report summarizes the results from the `r projectName` project (`r comparisonNames[an]` analysis). It was generated on `r format(Sys.Date(), format="%B %d %Y")`.
 
 # Sample comparison
 The samples `r paste(seqFiles$sampleName[comparison[[an]]$mset1], collapse=", ")` were compared with the samples `r paste(seqFiles$sampleName[comparison[[an]]$mset2], collapse=", ")`. The samples were analyzed in `r ifelse(comparison[[an]]$pairs[1], 'pairs', 'groups')`.
@@ -122,13 +123,17 @@ hist(methResults$edgeR.adj.p.value, breaks=100, ylim=c(0, ylim), xlab=paste(p.ad
 ## Chromosome plot
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-plotChromosomes(siteTable=methList3p[[pvc]], chrLengths=seqlengths(eval(parse(text=referenceName))), markerWidth=4e06, ymar=5)
+chrLengths<-seqlengths(eval(parse(text=referenceName)))
+names(chrLengths)<-paste(chrPrefix, names(chrLengths), sep="")
+plotChromosomes(siteTable=methList3p[[pvc]], chrLengths=chrLengths, ymar=5)
 ```
 
 **Figure 3.** This figure shows the DMR locations on the individual chromosomes or contigs. Only multiple window DMRs at a p-value threshold of `r format(selectedPvalue,scientific=T)` are shown here.
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-plotChromosomes(siteTable=MTCmethList3p[[MTCpvc]], chrLengths=seqlengths(eval(parse(text=referenceName))), markerWidth=4e06, ymar=5)
+chrLengths<-seqlengths(eval(parse(text=referenceName)))
+names(chrLengths)<-paste(chrPrefix, names(chrLengths), sep="")
+plotChromosomes(siteTable=MTCmethList3p[[MTCpvc]], chrLengths=chrLengths, ymar=5)
 ```
 
 **Figure 4.** This figure shows the DMR locations on the individual chromosomes or contigs. Only multiple window DMRs at a `r p.adj` adjusted p-value threshold of `r format(MTCselectedPvalue,scientific=T)` are shown here.

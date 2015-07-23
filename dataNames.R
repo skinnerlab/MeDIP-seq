@@ -120,17 +120,18 @@ comparison<-list()
 comparison[[1]]<-data.frame(mset1=c(1), mset2=c(2), pairs=F)
 
 # The maxDMRnum variable gives a maximum number of DMRs on which to calculate CpG density and other information. This speeds up the pipeline. However, this will need to be increased if the p-value of interest has more DMR than this number.
-maxDMRnum<-1000
+maxDMRnum<-5000
 
 ###########################
 ## Annotation parameters ##
 ###########################
 # annotationType can be from Biomart ("biomart") or GFF file ("gff")
-annotationType="gff"
+annotationType<-"gff"
 # if annotation is from Biomart, include biomaRt dataset information, otherwise use gff file name
 # if GFF file, include file name
-annotationSource="http or ftp site/name.gff.gz"
-annotationGFF="name.gff"
+annotationSource<-"http or ftp site/name.gff.gz"
+annotationGFF<-"name.gff"
+chrPrefix<-""
 
 # if annotation is from Biomart, include host and dataset
 biomartHost<-""
