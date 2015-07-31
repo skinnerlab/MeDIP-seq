@@ -75,7 +75,6 @@ pandoc.table(dmrNumberTable, split.tables=110, style="rmarkdown", caption="This 
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=8}
 chrLengths<-seqlengths(eval(parse(text=referenceName)))
-names(chrLengths)<-paste(chrPrefix, names(chrLengths), sep="")
 plotChromosomes(siteTable=methList3p[[pvc]], chrLengths=chrLengths, ymar=5)
 ```
 

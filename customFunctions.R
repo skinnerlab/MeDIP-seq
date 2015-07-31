@@ -18,13 +18,17 @@
    # stop: Stop position on chromosome for mark
 # chrLengths: vector of chromosome lengths, labels should be chromosome names
 
-plotChromosomes<-function(siteTable, chrLengths, ymar=4, xmar=5, cex.axis=1, markerWidth=0, main="", ...){
+plotChromosomes<-function(siteTable, chrLengths, ymar=4, xmar=5, cex.axis=1, markerWidth=0, main="", chrExclude="", ...){
      if (is.null(nrow(siteTable))) return()
      if(nrow(siteTable)>0){
 
-     	chrNames <- unique(siteTable$chr)
-     	chrLengths <- chrLengths[match(chrNames, names(chrLengths))]
-
+          chrNames <- unique(siteTable$chr)
+          chrLengths <- chrLengths[match(chrNames, names(chrLengths))]
+          if (!is.na(match(chrExclude, chrNames)[1])){
+               rc<-match(chrExclude, chrNames)
+               chrNames<-chrNames[-rc]
+               chrLengths<-chrLengths[-rc]
+          }
      	glen=0.4
           if (markerWidth==0){
                markerWidth<-max(seqlengths(eval(parse(text=referenceName))))/100
@@ -193,10 +197,8 @@ addAnnotationGFF<-function(dmrList, gff, chrPrefix="", maxDMR=1000){
           dmrList$annotation[queryHits(overlaps)]<-as.character(gff$group[subjectHits(overlaps)])
           # put original chromosome names back
           dmrList$chr<-ochr
-          return(dmrList)
-     } else {
-          return(dmrList)
      }
+     return(dmrList)
 }
 
 addAnnotationBiomart<-function(dmrList, annotationObject, chrPrefix="", maxDMR=1000){
@@ -209,10 +211,8 @@ addAnnotationBiomart<-function(dmrList, annotationObject, chrPrefix="", maxDMR=1
           dmrList<-setAnnotation(regions=dmrList, annotation=annotationObject)
           # put original chromosome names back
           dmrList$chr<-ochr
-          return(dmrList)
-     } else {
-          return(dmrList)
      }
+     return(dmrList)
 }
 
 ## This function is taken from the MEDIPS library (MEDIPS.setAnnotation). It causes an error when there are no regions that can be annotated. I've modified the function to not error in this case.
@@ -250,6 +250,20 @@ setAnnotation<-function (regions, annotation, cnv = F) {
      return(ans)
 }
 
+# This function makes sure the window stop site is actually on the chromosome. If it isn't, the stop site is changed to the last position on the chromosome and the length is adjusted accordingly.
+modifyStop <- function(dmrList, refGenome, maxDMR){
+     if (is.null(nrow(dmrList))) return(dmrList)
+     if (nrow(dmrList)<maxDMR && nrow(dmrList)>0){
+          for (rn in 1:nrow(dmrList)){
+               i<-dmrList[rn,]
+               i$start<-as.numeric(i$start); i$stop<-as.numeric(i$stop)
+               i$stop<-min(i$stop, eval(parse(text=paste("length(refGenome$", "\"", i$chr, "\"", ")", sep=""))))
+               i$length<-i$stop-as.numeric(i$start)+1
+               dmrList[rn,]<-i
+          }
+     }
+     return(dmrList)
+}
 
 ## Venn diagram wrappers for using GRanges objects
 vennCustomFour<-function(a, b, c, d, names, ...){
@@ -279,21 +293,21 @@ vennCustomFour<-function(a, b, c, d, names, ...){
         abdc<-subsetByOverlaps(abd, c); dabc<-subsetByOverlaps(dab, c)
         dbac<-subsetByOverlaps(dba, c); badc<-subsetByOverlaps(bad, c)
 
-        n1234<-max(length(abcd),length(cabd),length(cbad),length(bacd),
+        n1234<-min(length(abcd),length(cabd),length(cbad),length(bacd),
                    length(dbca),length(dcba),length(cbda),length(bcda),
                    length(acdb),length(cadb),length(dacb),length(dcab),
                    length(abdc),length(dabc),length(dbac),length(badc))
      
-        n123<-max(length(abc),length(bac),length(cab),length(cba))
-        n124<-max(length(abd),length(bad),length(dab),length(dba))
-        n134<-max(length(acd),length(cad),length(dac),length(dca))
-        n234<-max(length(bcd),length(cbd),length(dbc),length(dcb))
-        n12<-max(length(ab),length(ba))
-        n13<-max(length(ac),length(ca))
-        n14<-max(length(ad),length(da))
-        n23<-max(length(bc),length(cb))
-        n24<-max(length(bd),length(db))
-        n34<-max(length(cd),length(dc))
+        n123<-min(length(abc),length(bac),length(cab),length(cba))
+        n124<-min(length(abd),length(bad),length(dab),length(dba))
+        n134<-min(length(acd),length(cad),length(dac),length(dca))
+        n234<-min(length(bcd),length(cbd),length(dbc),length(dcb))
+        n12<-min(length(ab),length(ba))
+        n13<-min(length(ac),length(ca))
+        n14<-min(length(ad),length(da))
+        n23<-min(length(bc),length(cb))
+        n24<-min(length(bd),length(db))
+        n34<-min(length(cd),length(dc))
 
 
         area1<-length(a)
@@ -321,9 +335,66 @@ vennCustomThree<-function(a, b, c, names, ...){
         draw.triple.venn(area1=length(a), area2=length(b), area3=length(c), n12=n12, n13=n13, n23=n23, n123=n123, category=names, col=rep("black", 3), fill=c("skyblue", "pink1", "orange"), ...)
 }
 
+
 vennCustomTwo<-function(a, b, names, ...){
-        ab<-subsetByOverlaps(a,b); ba<-subsetByOverlaps(b,a)
-        n12<-max(length(ab), length(ba))
-        plot.new()
-        draw.pairwise.venn(area1=length(a), area2=length(b), cross.area=n12, category=names, col=rep("black", 2), fill=c("skyblue", "pink1"), ...)
+     ab<-subsetByOverlaps(a,b); ba<-subsetByOverlaps(b,a)
+     n12<-max(length(ab),length(ba))
+     
+     plot.new()
+     draw.pairwise.venn(area1=length(a), area2=length(b), cross.area=n12, category=names, col=rep("black", 2), fill=c("skyblue", "pink1"), ...)
+}
+
+calcOverlaps<-function(a,b){
+     # first count number of non-overlapping DMRs
+     uniqueA<-sum(!countOverlaps(a,b))
+     uniqueB<-sum(!countOverlaps(b,a))
+     # next find all overlapping DMRs
+     allAB<-findOverlaps(a,b)
+     qh<-queryHits(allAB)
+     sh<-subjectHits(allAB)
+     # find complex overlaps (overlapping DMRs in A that do not uniquely overlap a single DMR in B)
+     shc<-!is.na(match(sh, names(table(sh)[table(sh)>1])))
+     qhc<-!is.na(match(qh, names(table(qh)[table(qh)>1])))
+     complexAB<-allAB[shc|qhc]
+     # subtract complex overlaps from all overlapping to find simple overlaps
+     simpleAB<-length(allAB)-length(complexAB)
+     # calculate number of DMR involved in complex overlaps for each sample
+     ncA<-length(unique(queryHits(complexAB)))
+     ncB<-length(unique(subjectHits(complexAB)))
+     results<-c(uniqueA, ncA, simpleAB, ncB, uniqueB)
+     names(results)<-c("uniqueA", "complexA", "simpleAB", "complexB", "uniqueB")
+     return(results)
+}
+
+vennBarSet<-function(gdmrList, names, col, scale=T, ...){
+     comparisons<-matrix(nrow=length(gdmrList)^2, ncol=2)
+     comparisons[,1]<-c(sapply(1:length(gdmrList), rep, length(gdmrList)))
+     comparisons[,2]<-rep(1:length(gdmrList), length(gdmrList))
+     comparisons<-comparisons[!(comparisons[,1]==comparisons[,2]),]
+     overlaps<-apply(comparisons, 1, function(i){
+          calcOverlaps(gdmrList[[i[1]]], gdmrList[[i[2]]])
+     })
+     countOverlaps<-overlaps
+     if (scale){
+          overlaps<-apply(overlaps, 2, function(i) i<-i/sum(i))
+     }
+     #colMat<-colorMatrix<-apply(comparisons, 1, function(i){
+     colMat<-colorRampPalette(c(col[1], col[2]))(5)
+     #})
+     par(mar=c(3.1,4.1,2.1,4.1))
+     a<-barplot(overlaps, beside=F, horiz=T, col=(colMat), xpd=F, space=c(0,rep(c(rep(0,length(gdmrList)-2), 0.5),length(gdmrList)-1)),...)
+     mtext(side=2, at=a, c(names[comparisons[,1]]), las=1, line=0.1)
+     mtext(side=4, at=a, c(names[comparisons[,2]]), las=1, line=0.1)
+     text(apply(overlaps, 2, function(i) i<-i[1]/2), a, countOverlaps[1,], cex=0.7)
+     text(apply(overlaps, 2, function(i) i<-i[1]+i[2]/2), a, countOverlaps[2,], cex=0.7)
+     text(apply(overlaps, 2, function(i) i<-i[1]+i[2]+i[3]/2), a, countOverlaps[3,],cex=0.7)
+     text(apply(overlaps, 2, function(i) i<-i[1]+i[2]+i[3]+i[4]/2), a, countOverlaps[4,],cex=0.7)
+     text(apply(overlaps, 2, function(i) i<-i[1]+i[2]+i[3]+i[4]+i[5]/2), a, countOverlaps[5,], cex=0.7)
+}
+
+
+extendDMR<-function(dmrList, windowSize=1, pValueCutoff=0.9){
+     dmrList
+     
+     
 }

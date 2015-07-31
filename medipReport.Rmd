@@ -124,7 +124,6 @@ hist(methResults$edgeR.adj.p.value, breaks=100, ylim=c(0, ylim), xlab=paste(p.ad
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 chrLengths<-seqlengths(eval(parse(text=referenceName)))
-names(chrLengths)<-paste(chrPrefix, names(chrLengths), sep="")
 plotChromosomes(siteTable=methList3p[[pvc]], chrLengths=chrLengths, ymar=5)
 ```
 
@@ -132,7 +131,6 @@ plotChromosomes(siteTable=methList3p[[pvc]], chrLengths=chrLengths, ymar=5)
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 chrLengths<-seqlengths(eval(parse(text=referenceName)))
-names(chrLengths)<-paste(chrPrefix, names(chrLengths), sep="")
 plotChromosomes(siteTable=MTCmethList3p[[MTCpvc]], chrLengths=chrLengths, ymar=5)
 ```
 

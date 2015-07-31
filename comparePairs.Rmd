@@ -1,0 +1,65 @@
+---
+title: "Pairwise comparison report"
+output: pdf_document
+---
+
+<!-- Created by Daniel Beck on 7/28/2015 -->
+<!-- Modified: -->
+<!--      7/30/2015 Continued development. Tested on Human datasets. -->
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+source("dataNames.R")
+source("customFunctions.R")
+library(pander)
+library(bsgenomePackageName, character.only=T, lib.loc=genomeDirectory)
+
+
+resultsFiles<-c(paste(resultsDirectory, comparisonNames, "/results.RData", sep=""))
+selectedPvalues<-rep(1e-5, length(comparisonNames))
+pValueType<-rep("singleWindows", length(comparisonNames))
+
+
+resultsList<-list()
+dmrNumberList<-list()
+for (i in 1:length(comparisonNames)){
+     # load results into temporary environment
+     temp = local({load(resultsFiles[[i]]); environment()})
+     dmrNumberList[[i]]<-temp$dmrNumberTable
+     # find correct p-value
+     spv<-which(temp$pValues==selectedPvalues[[i]])
+     # extract selected DMR list
+     if (pValueType[i]=="singleWindows"){
+          resultsList[[i]]<-temp$methList[[spv]]
+     } else if (pValueType[i]=="multipleWindows"){
+          resultsList[[i]]<-temp$methList3p[[spv]]
+     } else if (pValueType[i]=="MTCsingleWindows"){
+          resultsList[[i]]<-temp$MTCmethList[[spv]]
+     } else if (pValueType[i]=="MTCmultipleWindows"){
+          resultsList[[i]]<-temp$MTCmethList3p[[spv]]
+     } else {
+          warning("Invalid pValueType")
+     }
+     rm(temp)
+}
+# make sure chromosome start and stop are numeric
+resultsList<-lapply(resultsList, function(i){
+     i$start<-as.numeric(i$start)
+     i$stop<-as.numeric(i$stop)
+     i
+})
+# convert resultsList DMR tables to GRanges objects
+gresultsList<-lapply(resultsList, makeGRangesFromDataFrame)
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results="asis"}
+
+summaryTable<-cbind("analysis"=comparisonNames, "p-value type"= pValueType, "p-value"=selectedPvalues, "DMR Number"=sapply(resultsList, nrow))
+summaryTable<-as.data.frame(summaryTable)
+pandoc.table(summaryTable, split.tables=Inf, style="rmarkdown", caption='This table shows the p-values and total DMR numbers for each analysis.')
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results="asis"}
+vennBarSet(gdmrList=gresultsList, names=comparisonNames, col=c("blue", "red"), scale=TRUE)
+```

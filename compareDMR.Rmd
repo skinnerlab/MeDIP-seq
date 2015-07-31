@@ -17,13 +17,13 @@ library(VennDiagram)
 source("customFunctions.R")
 
 # define datasets to compare
-comparisonNames<-c("50bp", "100bp", "400bp", "1000bp")
-analysisNames<-c("all50", "all100", "all400", "all1000")
+comparisonNames<-c("50bp", "100bp", "200bp", "400bp", "1000bp")
+analysisNames<-c("all50", "all100", "all200", "all400", "all1000")
 resultsFiles<-c(paste("/projects/steelheadSperm/results/", analysisNames, "/results.RData", sep=""))
 # define p-values to use
-selectedPvalues<-rep(1e-5, 4)
+selectedPvalues<-rep(1e-5, 5)
 # can be singleWindows, multipleWindows, MTCsingleWindows, MTCmultipleWindows
-pValueType<-rep("singleWindows", 4)
+pValueType<-rep("singleWindows", 5)
 
 resultsList<-list()
 dmrNumberList<-list()
@@ -64,28 +64,30 @@ This report compares the `r paste(comparisonNames, collapse=", ")` datasets.
 
 ### Number of DMRs at different edgeR p-value thresholds
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, results="asis"}
-     matrix(unlist(lapply(dmrNumberList, function(i) i[,3])), ncol=length(dmrNumberList))
+#     matrix(unlist(lapply(dmrNumberList, function(i) i[,3])), ncol=length(dmrNumberList))
 ```
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, results="asis"}
-summaryTable<-cbind(" "=LETTERS[1:length(comparisonNames)], "analysis"=comparisonNames, "p-value type"= pValueType, "p-value"=selectedPvalues, "DMR Number"=sapply(resultsList, nrow))
+# " "=LETTERS[1:length(comparisonNames)], 
+summaryTable<-cbind("analysis"=comparisonNames, "p-value type"= pValueType, "p-value"=selectedPvalues, "DMR Number"=sapply(resultsList, nrow))
 summaryTable<-as.data.frame(summaryTable)
 pandoc.table(summaryTable, split.tables=Inf, style="rmarkdown", caption='This table shows the p-values and total DMR numbers for each analysis.')
 ```
 
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-nameLabels<-paste(LETTERS[1:length(comparisonNames)], sapply(resultsList, nrow), sep=":")
-if (length(comparisonNames)==4){
-     silent<-vennCustomFour(a=gresultsList[[1]], b=gresultsList[[2]], c=gresultsList[[3]], d=gresultsList[[4]], names=nameLabels)
-} else if (length(comparisonNames)==3){
-     silent<-vennCustomThree(a=gresultsList[[1]], b=gresultsList[[2]], c=gresultsList[[3]], names=nameLabels)
-} else if (length(comparisonNames)==2){
-     silent<-vennCustomTwo(a=gresultsList[[1]], b=gresultsList[[2]], names=nameLabels)
-} else {
-     warning("No valid comparison")
-}
+# nameLabels<-paste(LETTERS[1:length(comparisonNames)], sapply(resultsList, nrow), sep=":")
+# if (length(comparisonNames)==4){
+#      silent<-vennCustomFour(a=gresultsList[[1]], b=gresultsList[[2]], c=gresultsList[[3]], d=gresultsList[[4]], names=nameLabels)
+# } else if (length(comparisonNames)==3){
+#      silent<-vennCustomThree(a=gresultsList[[1]], b=gresultsList[[2]], c=gresultsList[[3]], names=nameLabels)
+# } else if (length(comparisonNames)==2){
+#      silent<-vennCustomTwo(a=gresultsList[[1]], b=gresultsList[[2]], names=nameLabels)
+# } else {
+#      warning("No valid comparison")
+# }
+vennBarSet(gdmrList=gresultsList, names=comparisonNames, col=c("blue", "red"), scale=TRUE)
 ```
 
-**Figure 1.** This figure shows the number of overlapping DMRs in the different analyses. The numbers shown in this Venn diagram may not be perfectly accurate. Because a single DMR may be composed of multiple adjacent windows, the number of overlapping DMRs between two samples may be different depending on whether the DMRs are counted in the first sample or the second sample. For example, a long DMR in sample A may span the same genomic coordinates as two short DMRs in sample B. From the perspective of sample A, there is a single DMR that overlaps. From the perspective of sample B there are two overlapping DMRs. 
+**Figure 1.** This figure shows the number of overlapping DMRs in the different analyses. All pairwise comparisons are shown. The blue bars show the number of DMRs unique to the first analysis The red bars show the number of DMRs unique to the second analysis Purple areas show the number of simple overlaps between the two analyses. Complex overlaps (involving multiple DMRs in one analysis) are shown in intermediate colors.
 

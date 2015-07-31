@@ -123,8 +123,10 @@ for (analysis in 1:length(comparison)){
   # Filter additional information matrix in same manner
   methList3pEtc <- lapply(1:length(methList), function (i) {
           if (nrow(methList3p[[i]])>0 && !is.na(methList3p[[i]])){
-               if (!is.na(methList3p[[i]])&&!is.na(methListEtc[[i]])){
+               if (nrow(methList3p[[i]])>0 && !is.na(methList3p[[i]])){
+                    if (!is.null(nrow(methListEtc[[i]]))){
                        methListEtc[[i]][which(methList[[i]]$length>100),]
+                    } else { methListEtc[[i]] }
                } else { NA }
           } else { NA }
        })
@@ -139,6 +141,27 @@ for (analysis in 1:length(comparison)){
            } else { NA }
        })
 
+  #########################
+  ## Chromosome edge fix ##
+  #########################
+  
+  # There appears to be a bug in the MEDIPS package that defines genomic window stop coordinates by the window size. This is a problem when the window runs off the end of the chromosome. If this last window is determined to be differentially methylated, the CpG calculation on the window errors out. I fix this problem here by setting the last window stop site to the end of the chromosome. I'm not sure if this is an ideal solution. Hopefully the MEDIPS package isn't doing anything else weird at the end of chromosomes.
+
+   methList<-lapply(methList, function(i){
+        modifyStop(dmrList=i, refGenome=eval(parse(text=referenceName)), maxDMR=maxDMRnum)
+   })
+   MTCmethList<-lapply(MTCmethList, function(i){
+        modifyStop(dmrList=i, refGenome=eval(parse(text=referenceName)), maxDMR=maxDMRnum)
+   })
+   
+   methList3p<-lapply(methList3p, function(i){
+        modifyStop(dmrList=i, refGenome=eval(parse(text=referenceName)), maxDMR=maxDMRnum)
+   })
+   
+   MTCmethList3p<-lapply(MTCmethList3p, function(i){
+        modifyStop(dmrList=i, refGenome=eval(parse(text=referenceName)), maxDMR=maxDMRnum)
+   })
+  
   #############################
   ## CpG density calculation ##
   #############################

@@ -114,10 +114,33 @@ pValues<-c(5e-02, 1e-02, 1e-03, 1e-04, 1e-05, 1e-06, 1e-07)
 # allow for multiple comparisons. loop over comparison list in medipAnalysis.R
 # if pairs=F, all mset1 are compared to all mset2
 # if pairs=T, all pairwise comparisons are made, both within and between mset1 and mset2
-comparisonNames<-c("all")
+comparisonNames<-c(
+     "all",
+     "pair_1-2", "pair_1-3", "pair_2-3",
+     "pair_4-5", "pair_4-6", "pair_5-6",
+     "pair_1-4", "pair_1-5", "pair_1-6",
+     "pair_2-4", "pair_2-5", "pair_2-6",
+     "pair_3-4", "pair_3-5", "pair_3-6"
+)
+
 comparison<-list()
 ## all comparisons
-comparison[[1]]<-data.frame(mset1=c(1), mset2=c(2), pairs=F)
+comparison[[1]]<-data.frame(mset1=c(1:3), mset2=c(4:6), pairs=F)
+comparison[[2]]<-data.frame(mset1=c(1), mset2=c(2), pairs=T)
+comparison[[3]]<-data.frame(mset1=c(1), mset2=c(3), pairs=T)
+comparison[[4]]<-data.frame(mset1=c(2), mset2=c(3), pairs=T)
+comparison[[5]]<-data.frame(mset1=c(4), mset2=c(5), pairs=T)
+comparison[[6]]<-data.frame(mset1=c(4), mset2=c(6), pairs=T)
+comparison[[7]]<-data.frame(mset1=c(5), mset2=c(6), pairs=T)
+comparison[[8]]<-data.frame(mset1=c(1), mset2=c(4), pairs=T)
+comparison[[9]]<-data.frame(mset1=c(1), mset2=c(5), pairs=T)
+comparison[[10]]<-data.frame(mset1=c(1), mset2=c(6), pairs=T)
+comparison[[11]]<-data.frame(mset1=c(2), mset2=c(4), pairs=T)
+comparison[[12]]<-data.frame(mset1=c(2), mset2=c(5), pairs=T)
+comparison[[13]]<-data.frame(mset1=c(2), mset2=c(6), pairs=T)
+comparison[[14]]<-data.frame(mset1=c(3), mset2=c(4), pairs=T)
+comparison[[15]]<-data.frame(mset1=c(3), mset2=c(5), pairs=T)
+comparison[[16]]<-data.frame(mset1=c(3), mset2=c(6), pairs=T)
 
 # The maxDMRnum variable gives a maximum number of DMRs on which to calculate CpG density and other information. This speeds up the pipeline. However, this will need to be increased if the p-value of interest has more DMR than this number.
 maxDMRnum<-5000
