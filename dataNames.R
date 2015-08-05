@@ -71,6 +71,7 @@ seqFiles<-data.frame(
   sampleName=c("S1", "S2"), 
   p1FileName=c("S1_1.fq", "S2_1.fq"),
   p2FileName=c("S1_2.fq", "S2_2.fq"),
+  ctFlag=c("C", "T"),
   stringsAsFactors=F
 )
 
