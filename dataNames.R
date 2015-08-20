@@ -113,8 +113,6 @@ minRowSum <- 1
 pValues<-c(5e-02, 1e-02, 1e-03, 1e-04, 1e-05, 1e-06, 1e-07)
 
 # allow for multiple comparisons. loop over comparison list in medipAnalysis.R
-# if pairs=F, all mset1 are compared to all mset2
-# if pairs=T, all pairwise comparisons are made, both within and between mset1 and mset2
 comparisonNames<-c(
      "all",
      "pair_1-2", "pair_1-3", "pair_2-3",
@@ -142,6 +140,16 @@ comparison[[13]]<-data.frame(mset1=c(2), mset2=c(6), pairs=T)
 comparison[[14]]<-data.frame(mset1=c(3), mset2=c(4), pairs=T)
 comparison[[15]]<-data.frame(mset1=c(3), mset2=c(5), pairs=T)
 comparison[[16]]<-data.frame(mset1=c(3), mset2=c(6), pairs=T)
+
+
+####################
+## DMR parameters ##
+####################
+
+# p-value threshold for defining DMR boundaries
+dmrBoundPvalue<-0.1
+# Adjacency distance (=1 when windows must be exactly adjacent)
+adjDist<-1
 
 # The maxDMRnum variable gives a maximum number of DMRs on which to calculate CpG density and other information. This speeds up the pipeline. However, this will need to be increased if the p-value of interest has more DMR than this number.
 maxDMRnum<-5000
