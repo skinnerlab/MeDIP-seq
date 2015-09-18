@@ -11,6 +11,9 @@
 
 slidingWindowCluster <- function(ctable, windowLength, incrementLength)
 {
+if (is.null(nrow(ctable))) return(NULL)
+if (nrow(ctable)<=1) return(NULL) 
+          
 ctable <- ctable[c("Chromosome","cSTART","cSTOP","minP","nProbes")]
 ctable <- split(ctable, ctable["Chromosome"])
 
@@ -93,6 +96,7 @@ clusters <- data.frame(Chromosome=as.character(sliding_window[,"Chromosome"]),
                           Z.score=as.integer(as.character(sliding_window[,"Z-score"])),
                           P.value=as.numeric(sliding_window[,"P-value"]))
 
+if (nrow(clusters)==0) return(clusters)
 clusters <- clusters[order(clusters[,"Chromosome"],clusters[,"cSTART"]),]
 clusters <- split(clusters,clusters[,"Chromosome"])
 #names(clusters)

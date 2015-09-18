@@ -5,7 +5,7 @@
 # stop: Stop position on chromosome for mark
 # chrLengths: vector of chromosome lengths, labels should be chromosome names
 
-plotChromosomes<-function(siteTable=NA, clusters=NA, chrLengths, ymar=4, xmar=5, cex.axis=1, markerWidth=0, main="", ...){
+plotChromosomes<-function(siteTable=NULL, clusters=NULL, chrLengths, ymar=4, xmar=5, cex.axis=1, markerWidth=0, main="", ...){
      if (is.null(nrow(siteTable))) return()
      if(nrow(siteTable)>0){
           
@@ -13,7 +13,7 @@ plotChromosomes<-function(siteTable=NA, clusters=NA, chrLengths, ymar=4, xmar=5,
           chrLengths <- chrLengths[match(chrNames, names(chrLengths))]
           glen=0.4
           if (markerWidth==0){
-               markerWidth<-max(seqlengths(eval(parse(text=referenceName))))/100
+               markerWidth<-max(chrLengths)/100
           }
           # generate empty plot
           par(mar = c(xmar,ymar,4,2) + 0.1)
@@ -27,11 +27,13 @@ plotChromosomes<-function(siteTable=NA, clusters=NA, chrLengths, ymar=4, xmar=5,
                rows <- siteTable[which(siteTable[,"chr"]==i),]
                siteStart <- as.numeric(rows[,"start"])
                siteStop <- as.numeric(rows[,"stop"])
-               if (!is.na(clusters)){
-                    clusterRows <- clusters[which(clusters[,"chr"]==i),]
-                    clusterStart <- as.numeric(clusterRows[,"start"])
-                    clusterStop <- as.numeric(clusterRows[,"stop"])
-                    plotRect(chrName=i, siteStart=clusterStart, siteStop=clusterStop, chrLengths=chrLengths)
+               if(!is.null(clusters)){
+                    if (!(nrow(clusters)==0)){
+                         clusterRows <- clusters[which(clusters[,"chr"]==i),]
+                         clusterStart <- as.numeric(clusterRows[,"start"])
+                         clusterStop <- as.numeric(clusterRows[,"stop"])
+                         plotRect(chrName=i, siteStart=clusterStart, siteStop=clusterStop, chrLengths=chrLengths)
+                    }
                }
                plotPoly(chrName=i, siteStart=siteStart, siteStop=siteStop, chrLengths=chrLengths, markerWidth=markerWidth, ...)
           }

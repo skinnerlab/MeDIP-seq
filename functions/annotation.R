@@ -23,17 +23,29 @@ addAnnotationGFF<-function(dmrList, gff, chrPrefix="", maxDMR=1000){
 }
 
 addAnnotationBiomart<-function(dmrList, annotationObject, chrPrefix="", maxDMR=1000){
-     if (is.null(nrow(dmrList))) return(dmrList)
+     if (is.null(nrow(dmrList))) return(list(dmrList=NA, annMat=NA))
      if(nrow(dmrList)<maxDMR && nrow(dmrList)>0){
-          # save original chromosome names
-          ochr<-dmrList$chr
+          # keep original dmrList unchanged
+          dmrListAnnotated<-dmrList
           # add prefix to chr name if necessary
-          dmrList$chr<-paste(chrPrefix, dmrList$chr, sep="")
-          dmrList<-setAnnotation(regions=dmrList, annotation=annotationObject)
-          # put original chromosome names back
-          dmrList$chr<-ochr
+          dmrListAnnotated$chr<-paste(chrPrefix, dmrListAnnotated$chr, sep="")
+          dmrListAnnotated<-setAnnotation(regions=dmrListAnnotated, annotation=annotationObject)
+
+          # condence annotations to single columne of ids, separated by ;
+          annotation<-dmrListAnnotated[,grep("_id", colnames(dmrListAnnotated))]
+          annotation<-apply(cbind(annotation), 1, function(i) paste(i[!is.na(i)], collapse=";"))
+          dmrList<-cbind(dmrList, annotation)
+          
+          annotateOptions<-c("ensembl_gene_id", "chromosome_name", "start_position", "end_position", "gene_biotype", "description")
+          ids<-unlist(strsplit(annotation, split=";"))
+          if (length(ids)>0){
+            annMat<-getBM(attributes=annotateOptions, filters="ensembl_gene_id", values=ids, mart=useMart("ensembl", dataset=biomartDataset))
+            annMat<-annMat[order(match(annMat$ensembl_gene_id, ids)),]
+          } else {
+            annMat<-NA
+          }
      }
-     return(dmrList)
+     return(list(dmrList=dmrList, annMat=annMat))
 }
 
 ## This function is taken from the MEDIPS library (MEDIPS.setAnnotation). It causes an error when there are no regions that can be annotated. I've modified the function to not error in this case.

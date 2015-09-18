@@ -43,34 +43,36 @@ processedBamFiles <-
 
 # Normalization if necessary
 if (CScalc){
-        CS<-MEDIPS.couplingVector(pattern = "CG", refObj = processedBamFiles[[1]])
+     CS<-MEDIPS.couplingVector(pattern = "CG", refObj = processedBamFiles[[1]])
 } else {
-        CS<-NULL
+     CS<-NULL
 }
 
-mset1<-processedBamFiles[comparison[[analysis]]$mset1]
-mset2<-processedBamFiles[comparison[[analysis]]$mset2]
-if (length(mset1)==0) mset1<-NULL
-if (length(mset2)==0) mset2<-NULL
+
 
 # do all comparisons
 for (analysis in 1:length(comparison)){  
-  methResults <- MEDIPS.meth(
-  	MSet1=mset1,
-  	MSet2=mset2,
-  	p.adj=p.adj,
-  	diff.method=diff.method,
-  	MeDIP=MeDIP,
-  	CNV=CNV,
-  	CSet=CS,
-  	minRowSum=minRowSum
-  )
+     
+     mset1<-processedBamFiles[comparison[[analysis]]$mset1]
+     mset2<-processedBamFiles[comparison[[analysis]]$mset2]
+     if (length(mset1)==0) mset1<-NULL
+     if (length(mset2)==0) mset2<-NULL
+     
+     methResults <- MEDIPS.meth(
+          MSet1=mset1,
+          MSet2=mset2,
+          p.adj=p.adj,
+          diff.method=diff.method,
+          MeDIP=MeDIP,
+          CNV=CNV,
+          CSet=CS,
+          minRowSum=minRowSum
+     )
   
-  system(paste("mkdir ", resultsDirectory, comparisonNames[analysis], sep=""))
-  save(methResults, file=paste(resultsDirectory, comparisonNames[analysis], "/methResults.RData", sep=""))
-
-  # clean up unnecessary objects
-  rm(methResults)
+     system(paste("mkdir ", resultsDirectory, comparisonNames[analysis], sep=""))
+     save(methResults, file=paste(resultsDirectory, comparisonNames[analysis], "/methResults.RData", sep=""))
+     # clean up unnecessary objects
+     rm(methResults)
 }
 
 

@@ -44,11 +44,22 @@ if (mapReads){
 
 
 ## Differential coverage analysis
-The differential coverage analysis was performed using the MEDIPS R package. The analysis used a windows size of `r ws`bp. The `r diff.method` method was used to calculate p-values. Annotation information was downloaded from `r ifelse(annotationType=="biomart", 'the Ensembl database using the biomaRt R package', annotationSource)`.
+The differential coverage analysis was performed using the MEDIPS R package. The analysis used a windows size of `r ws`bp. DMRs were defined using a `r diff.method` p-value threshold of `r reportPvalue`. DMR edges were extended until there were no genomic windows within `r adjDist`bp with a p-value less than `r dmrBoundPvalue`. Annotation information was downloaded from `r ifelse(annotationType=="biomart", 'the Ensembl database using the biomaRt R package', annotationSource)`.
 
 ```{r, echo=FALSE, results="asis", message=FALSE, warning=FALSE}
-pandoc.table(as.data.frame(dmrNumberTable[,1:4]), split.tables=110, style="rmarkdown", caption="This table shows the number of DMRs found using different edgeR p-value cutoff thresholds.")
+pandoc.table(as.data.frame(dmrNumberTable), split.tables=110, style="rmarkdown", caption="This table shows the number of DMRs found using different edgeR p-value cutoff thresholds.")
 
+```
+
+
+```{r, echo=FALSE, results="asis", message=FALSE, warning=FALSE}
+
+nWin<-table(methList[[pvc]]$numSigWin)
+nWinTable<-as.data.frame(matrix(ncol=length(nWin), nrow=2, c(names(nWin), nWin), byrow=T))
+row.names(nWinTable)<-c("Number of significant windows", "Number of DMR")
+colnames(nWinTable)<-rep(" ", ncol(nWinTable))
+pandoc.table(nWinTable, split.tables=110, style="rmarkdown", caption=paste("This table shows the number of DMR with each specific number of significant windows at a p-value threshold of ", reportPvalue, sep=""))
+             
 ```
 
 ************
@@ -56,8 +67,10 @@ pandoc.table(as.data.frame(dmrNumberTable[,1:4]), split.tables=110, style="rmark
 ## Chromosome plot
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=8}
+clusterObject<-slidingWindowCluster(formatForCluster(methList2p[[pvc]]), windowLength=2000000, incrementLength=50000)
+colnames(clusterObject)<-c("chr", "start", "stop", "minP")
 chrLengths<-seqlengths(eval(parse(text=referenceName)))
-plotChromosomes(siteTable=methList2p[[pvc]], chrLengths=chrLengths, ymar=5)
+plotChromosomes(siteTable=methList2p[[pvc]], chrLengths=chrLengths, ymar=5, clusters=clusterObject)
 ```
 
 **Figure 1.** This figure shows the DMR locations on the individual chromosomes or contigs. Only DMR containing at least two significant windows at a p-value threshold of `r format(reportPvalue,scientific=T)` are shown here.

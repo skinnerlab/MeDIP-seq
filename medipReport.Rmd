@@ -20,12 +20,11 @@ an<-which(comparisonNames==analysisName)
 
 # list position for these p-values
 pvc<-which(pValues==reportPvalue)
-MTCpvc<-which(pValues==MTCreportPvalue)
+MTCpvc<-which(MTCpValues==MTCreportPvalue)
 
 # load results
 load(paste(resultsDirectory, comparisonNames[an], "/methLists.RData", sep=""))
 load(paste(resultsDirectory, comparisonNames[an], "/methResults.RData", sep=""))
-
 
 ```
 
@@ -62,12 +61,27 @@ The *`r species`* reference genome was provided by `r provider` and was download
 ## Differential coverage analysis
 The differential coverage analysis was performed using the MEDIPS R package. The analysis used a windows size of `r ws`bp. The `r diff.method` method was used to calculate p-values. The `r p.adj` multiple testing adjustment was also calculated. Annotation information was downloaded from `r ifelse(annotationType=="biomart", 'the Ensembl database using the biomaRt R package', annotationSource)`.
 
+
+### DMR definition
+DMRs were defined using a `r diff.method` p-value threshold of `r reportPvalue` or a `r p.adj` adjusted p-value threshold of `r MTCreportPvalue`. The DMR edges were extended to include neighboring windows with a p-value less than `r dmrBoundPvalue`. Genomic windows are considered neighboring if they are within `r adjDist`bp of the DMR boundary. In other words, DMR edges are extended until there is no genomic window within `r adjDist`bp with a p-value less than `r dmrBoundPvalue`. 
+
 ```{r, echo=FALSE, results="asis", message=FALSE, warning=FALSE}
 
-pandoc.table(as.data.frame(dmrNumberTable)[,1:4], split.tables=110, style="rmarkdown", caption="This table shows the number of DMRs found using different p-value cutoff thresholds. The allWindow column shows all DMRs. The twoWindow column shows the number of DMRs containing at least two significant windows. The threeWindow column shows the number of DMRs containing at least three significant windows.")
+pandoc.table(as.data.frame(dmrNumberTable), split.tables=110, style="rmarkdown", caption="This table shows the number of DMRs found using different p-value cutoff thresholds. The allWindow column shows all DMRs. The twoWindow column shows the number of DMRs containing at least two significant windows.")
 
-pandoc.table(as.data.frame(dmrNumberTable)[,c(1,5,6,7)], split.tables=110, style="rmarkdown", caption="This table shows the number of DMRs found using different multiple testing corrected p-value cutoff thresholds. The MTCallWindow column shows all DMRs. The MTCtwoWindow column shows the number of DMRs containing at least two significant windows. The MTCthreeWindow column shows the number of DMRs containing at least three significant windows.")
+pandoc.table(as.data.frame(MTCdmrNumberTable), split.tables=110, style="rmarkdown", caption="This table shows the number of DMRs found using different multiple testing corrected p-value cutoff thresholds. The allWindow column shows all DMRs. The twoWindow column shows the number of DMRs containing at least two significant windows.")
 
+```
+
+
+```{r, echo=FALSE, results="asis", message=FALSE, warning=FALSE}
+
+nWin<-table(methList[[pvc]]$numSigWin)
+nWinTable<-as.data.frame(matrix(ncol=length(nWin), nrow=2, c(names(nWin), nWin), byrow=T))
+row.names(nWinTable)<-c("Number of significant windows", "Number of DMR")
+colnames(nWinTable)<-rep(" ", ncol(nWinTable))
+pandoc.table(nWinTable, split.tables=110, style="rmarkdown", caption=paste("This table shows the number of DMR with each specific number of significant windows at a p-value threshold of ", reportPvalue, sep=""))
+             
 ```
 
 ### Overall p-value distribution
@@ -102,25 +116,31 @@ hist(methResults$edgeR.adj.p.value, breaks=100, ylim=c(0, ylim), xlab=paste(p.ad
 ### Chromosome plot
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=8}
+# find clusters
+dmrList<-methList[[pvc]]
+
+clusterObject<-slidingWindowCluster(formatForCluster(dmrList), windowLength=2000000, incrementLength=50000)
+colnames(clusterObject)<-c("chr", "start", "stop", "minP")
 chrLengths<-seqlengths(eval(parse(text=referenceName)))
-plotChromosomes(siteTable=methList[[pvc]], chrLengths=chrLengths, ymar=5)
+plotChromosomes(siteTable=dmrList, chrLengths=chrLengths, ymar=5, clusters=clusterObject)
+
 ```
 
 **Figure 3.** This figure shows the DMR locations on the individual chromosomes or contigs. All DMRs at a p-value threshold of `r format(reportPvalue,scientific=T)` are shown here.
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=8}
+# find clusters
+dmrList<-methList2p[[pvc]]
+
+clusterObject<-slidingWindowCluster(formatForCluster(dmrList), windowLength=2000000, incrementLength=50000)
+colnames(clusterObject)<-c("chr", "start", "stop", "minP")
 chrLengths<-seqlengths(eval(parse(text=referenceName)))
-plotChromosomes(siteTable=methList2p[[pvc]], chrLengths=chrLengths, ymar=5)
+plotChromosomes(siteTable=dmrList, chrLengths=chrLengths, ymar=5, clusters=clusterObject)
+
 ```
 
 **Figure 4.** This figure shows the DMR locations on the individual chromosomes or contigs. Only DMRs containing at least two significant windows at a p-value threshold of `r format(reportPvalue,scientific=T)` are shown here.
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=8}
-chrLengths<-seqlengths(eval(parse(text=referenceName)))
-plotChromosomes(siteTable=methList3p[[pvc]], chrLengths=chrLengths, ymar=5)
-```
-
-**Figure 5.** This figure shows the DMR locations on the individual chromosomes or contigs. Only DMRs containing at least three significant windows at a p-value threshold of `r format(reportPvalue,scientific=T)` are shown here.
 
 ******
 
@@ -131,55 +151,104 @@ par(mar=c(5, 5, 4, 2) + 0.1)
 plotCpGdensity(methList[[pvc]], main="", xlab="Number of CpG sites per 100bp", ylab="Number of differential DNA \n methylation regions")
 ```
 
-**Figure 6.** This figure is a histogram of the number of DMRs at different CpG densities. All DMRs at a p-value threshold of `r format(reportPvalue,scientific=T)` are shown here.
+**Figure 5.** This figure is a histogram of the number of DMRs at different CpG densities. All DMRs at a p-value threshold of `r format(reportPvalue,scientific=T)` are shown here.
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=5}
 par(mar=c(5, 5, 4, 2) + 0.1)
 plotCpGdensity(methList2p[[pvc]], main="", xlab="Number of CpG sites per 100bp", ylab="Number of differential DNA \n methylation regions")
 ```
 
-**Figure 7.** This figure is a histogram of the number of DMRs at different CpG densities. Only DMRs containing at least two significant windows at a p-value threshold of `r format(reportPvalue,scientific=T)` are shown here.
+**Figure 6.** This figure is a histogram of the number of DMRs at different CpG densities. Only DMRs containing at least two significant windows at a p-value threshold of `r format(reportPvalue,scientific=T)` are shown here.
 
-
-```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=5}
-par(mar=c(5, 5, 4, 2) + 0.1)
-plotCpGdensity(methList3p[[pvc]], main="", xlab="Number of CpG sites per 100bp", ylab="Number of differential DNA \n methylation regions")
-```
-
-**Figure 8.** This figure is a histogram of the number of DMRs at different CpG densities. Only DMRs containing at least three significant windows at a p-value threshold of `r format(reportPvalue,scientific=T)` are shown here.
 
 ### DMR characteristics
 
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=5}
+hist(methList[[pvc]]$length, main="", xlab="DMR length (bp)", ylab="Number of DMR")
 
-```{r, echo=FALSE, results="asis", message=FALSE, warning=FALSE}
-
-nWin<-table(methList[[pvc]]$numSigWin)
-nWinTable<-as.data.frame(matrix(ncol=length(nWin), nrow=2, c(names(nWin), nWin), byrow=T))
-row.names(nWinTable)<-c("Number of significant windows", "Number of DMR")
-colnames(nWinTable)<-rep(" ", ncol(nWinTable))
-pandoc.table(nWinTable, split.tables=110, style="rmarkdown", caption=paste("This table shows the number of DMR with each specific number of significant windows at a p-value threshold of ", reportPvalue, sep=""))
-             
 ```
 
+**Figure 7.** This figure is a histogram of the DMR lengths. All DMRs at a p-value threshold of `r format(reportPvalue,scientific=T)` are shown here.
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=5}
-hist(methList[[pvc]]$length, main="", xlab="DMR length (bp)")
+hist(methList2p[[pvc]]$length, main="", xlab="DMR length (bp)", ylab="Number of DMR")
+
 ```
 
-**Figure 9.** This figure is a histogram of the DMR lengths. All DMRs at a p-value threshold of `r format(reportPvalue,scientific=T)` are shown here.
+**Figure 8.** This figure is a histogram of the DMR lengths. Two window DMRs at a p-value threshold of `r format(reportPvalue,scientific=T)` are shown here.
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=6}
-plot(methList[[pvc]]$length, methList[[pvc]]$cpgDensity, xlab="DMR length (bp)", ylab="CpG per 100 bp")
+if(!is.null(methList[[pvc]]$cpgNum)){
+     plot(methList[[pvc]]$cpgNum, methList[[pvc]]$length, xlab="Number of CpGs", ylab="DMR length (bp)")
+}
 ```
 
-**Figure 10.** This figure plots the DMRs by length and CpG density. All DMRs at a p-value threshold of `r format(reportPvalue,scientific=T)` are shown here.
-
+**Figure 9.** This figure shows the DMR length vs number of CpGs. All DMRs at a p-value threshold of `r format(reportPvalue,scientific=T)` are shown here.
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=6}
-plot(methList[[pvc]]$cpgNum, methList[[pvc]]$length, xlab="Number of CpGs", ylab="DMR length (bp)")
+if(!is.null(methList2p[[pvc]]$cpgNum)){
+     plot(methList2p[[pvc]]$cpgNum, methList2p[[pvc]]$length, xlab="Number of CpGs", ylab="DMR length (bp)")
+}
 ```
 
-**Figure 11.** This figure shows the DMR length vs number of CpGs. All DMRs at a p-value threshold of `r format(reportPvalue,scientific=T)` are shown here.
+**Figure 10.** This figure shows the DMR length vs number of CpGs. Two window DMRs at a p-value threshold of `r format(reportPvalue,scientific=T)` are shown here.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=7}
+a<-NULL
+if (cVar){
+     s1cols<-match(paste(sbamFileName[comparison[[an]]$mset1], ".rpkm",sep=""), colnames(methResults))
+     s2cols<-match(paste(sbamFileName[comparison[[an]]$mset2], ".rpkm",sep=""), colnames(methResults))
+     sdH<-apply(methResults[,s1cols], 1, sd)
+     sdN<-apply(methResults[,s2cols], 1, sd)
+     cvH<-sdH/methResults[,"MSets1.rpkm.mean"]
+     cvN<-sdN/methResults[,"MSets2.rpkm.mean"]
+     
+     sigWin<-methResults[which(methResults$edgeR.p.value<reportPvalue),]
+     SWsdH<-apply(sigWin[,s1cols], 1, sd)
+     SWsdN<-apply(sigWin[,s2cols], 1, sd)
+     SWcvH<-SWsdH/sigWin[,"MSets1.rpkm.mean"]
+     SWcvN<-SWsdN/sigWin[,"MSets2.rpkm.mean"]
+     colorVector<-colorRampPalette(c("red", "black", "blue"))(100)
+     SWcol<-colorVector[as.integer(sigWin$edgeR.p.value*median(1/sigWin$edgeR.p.value))]
+     
+     dH<-density(cvH, na.rm=T)
+     dN<-density(cvN, na.rm=T)
+     SWdH<-density(SWcvH, na.rm=T)
+     SWdN<-density(SWcvN, na.rm=T)
+     plot(dH$x, dH$y, type="l", col="red", ylim=c(0,max(c(dH$y, dN$y, SWdH$y, SWdN$y))), xlab="CV for RPKM corrected coverage values", ylab="Frequency across genomic windows")
+     points(dN$x, dN$y, type="l", col="red", lty=5)
+     points(SWdH$x, SWdH$y, type="l", col="blue")
+     points(SWdN$x, SWdN$y, type="l", col="blue", lty=5)
+     legend(fill=c("red", "blue"), c("all", paste("p<", reportPvalue, sep="")), x="top")
 
 
+     s1n<-names(table(seqFiles$ctFlag[comparison[[an]]$mset1]))
+     s2n<-names(table(seqFiles$ctFlag[comparison[[an]]$mset2]))
+     a<-paste("Figure 11. This figure shows the smoothed distribution of CV for RPKM corrected coverage values across genomic windows. All genomic windows for both ",s1n," and ", s2n," populations are colored red. The subset of genomic windows with a p-value less than ", reportPvalue ," for both control and treatment populations are colored blue. ", s1n, " populations are shown with solid lines and ", s2n," populations with dashed lines.", sep="")
+     
+}
+```
+
+`r a`
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=7}
+a<-NULL
+if (cVar){
+     layout(matrix(ncol=2, nrow=2, c(3,1,0,2)), widths=c(7, 1), heights=c(1,7))
+     par(mar=c(5,4,0,0)+0.1)
+     plot(SWcvH, SWcvN, xlab=paste(s1n, " CV", sep=""), ylab=paste(s2n, " CV", sep=""), col=SWcol, xlim=c(0,1.73), ylim=c(0,1.73))
+     SWhH<-hist(SWcvH, plot=F)
+     SWhN<-hist(SWcvN, plot=F)
+     par(mar=c(5.1,0,0,0.1))
+     bhH<-barplot(SWhN$density, horiz=T, axes=F)
+     par(mar=c(0,4.1,0.1,0))
+     barplot(SWhH$density, axes=F)
+     
+     a<-paste("Figure 12. This figure shows the CV for RPKM corrected coverage values for ", s1n, " samples vs. ", s2n, " samples. Points are colored by p-value, with blue having the highest p-value, red having the lowest, and black being intermediate. Only genomic windows with a p-value less than ",reportPvalue," are shown here. Histograms on the x and y axis show the CV distribution of genomic windows in the ",s1n," and ",s2n," samples respectively.", sep="")
+}
+
+```
+
+`r a`
 

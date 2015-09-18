@@ -8,12 +8,13 @@ source("dataNames.R")
 source("customFunctions.R")
 library("rmarkdown")
 
-rAnalysis<-c("all", "all")
-rpValues<-c(1e-05, 1e-06)
-rMTCpValues<-c(0.05, 0.05)
+rAnalysis<-c("all")
+rpValues<-c(1e-04)
+rMTCpValues<-c(0.1)
+calcVar<-c(TRUE)
 
 for (i in 1:length(rAnalysis)){
-     analysisName<-rAnalysis[i]; reportPvalue<-rpValues[i]; MTCreportPvalue<-rMTCpValues[i]; 
+     analysisName<-rAnalysis[i]; reportPvalue<-rpValues[i]; MTCreportPvalue<-rMTCpValues[i]; cVar<-calcVar[i];
      fnReport<-paste(resultsDirectory, rAnalysis,"/", gsub(" ", "_", projectName), "_", analysisName, "_", rpValues[i], "_", rMTCpValues[i], "_report.pdf", sep="")
      fnSummary<-paste(resultsDirectory, rAnalysis,"/", gsub(" ", "_", projectName), "_", analysisName, "_", rpValues[i], "_", rMTCpValues[i], "_summary.pdf", sep="")
      

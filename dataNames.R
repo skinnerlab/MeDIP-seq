@@ -110,8 +110,8 @@ CScalc <- FALSE
 minRowSum <- 1
 
 # This vector holds all p-value thresholds to use for the analyses
-pValues<-c(5e-02, 1e-02, 1e-03, 1e-04, 1e-05, 1e-06, 1e-07)
-
+pValues<-c(1e-03, 1e-04, 1e-05, 1e-06, 1e-07)
+MTCpValues<-c(0.2, 0.1, 0.05)
 # allow for multiple comparisons. loop over comparison list in medipAnalysis.R
 comparisonNames<-c(
      "all",
@@ -149,7 +149,7 @@ comparison[[16]]<-data.frame(mset1=c(3), mset2=c(6), pairs=T)
 # p-value threshold for defining DMR boundaries
 dmrBoundPvalue<-0.1
 # Adjacency distance (=1 when windows must be exactly adjacent)
-adjDist<-1
+adjDist<-1000
 
 # The maxDMRnum variable gives a maximum number of DMRs on which to calculate CpG density and other information. This speeds up the pipeline. However, this will need to be increased if the p-value of interest has more DMR than this number.
 maxDMRnum<-5000

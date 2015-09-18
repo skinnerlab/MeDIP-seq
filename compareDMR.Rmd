@@ -17,31 +17,49 @@ library(VennDiagram)
 source("customFunctions.R")
 
 # define datasets to compare
-comparisonNames<-c("50bp", "100bp", "200bp", "400bp", "1000bp")
-analysisNames<-c("all50", "all100", "all200", "all400", "all1000")
-resultsFiles<-c(paste("/projects/steelheadSperm/results/", analysisNames, "/results.RData", sep=""))
+analysis<-c("sperm2_1e-4","sperm2_5e-2_fdr","sperm3_1e-3", "rbc2_1e-4","rbc2_5e-2_fdr", "rbc3_1e-3")
+resultsFiles<-c(
+     "/projects/steelheadSperm/results/all/",
+     "/projects/steelheadSperm/results/all/",
+     "/projects/steelheadSperm/results/all/",
+     "/projects/steelheadRBC/results/all/",
+     "/projects/steelheadRBC/results/all/",
+     "/projects/steelheadRBC/results/all/"
+)
+dataNamesFiles<-c(
+     "/projects/steelheadSperm/code/dataNames.R",
+     "/projects/steelheadSperm/code/dataNames.R",
+     "/projects/steelheadSperm/code/dataNames.R",
+     "/projects/steelheadRBC/code/dataNames.R",
+     "/projects/steelheadRBC/code/dataNames.R",
+     "/projects/steelheadRBC/code/dataNames.R"
+)
+
+
 # define p-values to use
-selectedPvalues<-rep(1e-5, 5)
-# can be singleWindows, multipleWindows, MTCsingleWindows, MTCmultipleWindows
-pValueType<-rep("singleWindows", 5)
+selectedPvalues<-c(1e-4, 0.05, 1e-3, 1e-4, 0.05, 1e-3)
+# can be allWindow, twoWindow, threeWindow, MTCallWindow, MTCtwoWindow, MTCthreeWindow
+pValueType<-c("twoWindow", "MTCtwoWindow", "threeWindow", "twoWindow", "MTCtwoWindow", "threeWindow")
 
 resultsList<-list()
 dmrNumberList<-list()
-for (i in 1:length(comparisonNames)){
+for (i in 1:length(analysis)){
      # load results into temporary environment
-     temp = local({load(resultsFiles[[i]]); environment()})
+     dnTemp<-new.env()
+     source(dataNamesFiles[[i]], local=dnTemp)
+     temp = local({load(paste(resultsFiles[[i]], "methLists.RData", sep="")); environment()})
      dmrNumberList[[i]]<-temp$dmrNumberTable
      # find correct p-value
-     spv<-which(temp$pValues==selectedPvalues[[i]])
+     spv<-which(dnTemp$pValues==selectedPvalues[[i]])
      # extract selected DMR list
-     if (pValueType[i]=="singleWindows"){
+     if (pValueType[i]=="allWindow"){
           resultsList[[i]]<-temp$methList[[spv]]
-     } else if (pValueType[i]=="multipleWindows"){
-          resultsList[[i]]<-temp$methList3p[[spv]]
-     } else if (pValueType[i]=="MTCsingleWindows"){
+     } else if (pValueType[i]=="twoWindow"){
+          resultsList[[i]]<-temp$methList2p[[spv]]
+     } else if (pValueType[i]=="MTCallWindow"){
           resultsList[[i]]<-temp$MTCmethList[[spv]]
-     } else if (pValueType[i]=="MTCmultipleWindows"){
-          resultsList[[i]]<-temp$MTCmethList3p[[spv]]
+     } else if (pValueType[i]=="MTCtwoWindow"){
+          resultsList[[i]]<-temp$MTCmethList2p[[spv]]
      } else {
           warning("Invalid pValueType")
      }
@@ -87,6 +105,7 @@ pandoc.table(summaryTable, split.tables=Inf, style="rmarkdown", caption='This ta
 #      warning("No valid comparison")
 # }
 vennBarSet(gdmrList=gresultsList, names=comparisonNames, col=c("blue", "red"), scale=TRUE)
+
 ```
 
 **Figure 1.** This figure shows the number of overlapping DMRs in the different analyses. All pairwise comparisons are shown. The blue bars show the number of DMRs unique to the first analysis The red bars show the number of DMRs unique to the second analysis Purple areas show the number of simple overlaps between the two analyses. Complex overlaps (involving multiple DMRs in one analysis) are shown in intermediate colors.

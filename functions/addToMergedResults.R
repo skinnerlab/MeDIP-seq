@@ -11,5 +11,6 @@ addToMergedResults<-function(allWindows, mergedWindows){
      if (nrow(mergedWindows)>1){
           allCombined<-allCombined[match(mergedWindows$ID, rownames(allCombined)),]
      }
+     allCombined<-rbind(allCombined)
      return(allCombined)
 }
