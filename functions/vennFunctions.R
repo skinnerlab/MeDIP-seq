@@ -124,6 +124,79 @@ calcOverlapsBP<-function(dmrList){
      return(overlapBPlist)
 }
 
+# this function is based on draw.pairwise.venn() but is customized for DMR overlaps. This variation allows only a single grouping for each DMR. DMRs are added to the categories in the order of 2 overlaps, unique. 
+vennDMRtwo<-function(dmrList, names, scaled=T, ...){
+     # split DMR tables by chromosome
+     sdmrList<-lapply(dmrList, function(i) split.data.frame(i, f=i$chr))
+     # find chromosomes shared by all dmrLists
+     commonChr<-names(sdmrList[[1]])
+     commonChr<-commonChr[!is.na(match(commonChr, names(sdmrList[[2]])))]
+     
+     uniqueAbp<-NULL; uniqueBbp<-NULL; 
+     uniqueAdmr<-NULL; uniqueBdmr<-NULL;  
+     overlapABbp<-NULL; 
+     overlapABdmr<-NULL;
+     
+     # loop over all chromosomes
+     for (chr in 1:length(commonChr)){
+          # extract all dmr of given chromosome
+          chrList<-lapply(sdmrList, function(i) i<-i[[which(names(i)==commonChr[chr])]])
+          # expand ranges to individual bp vector
+          pdmrBP<-lapply(chrList, function(i) lapply(1:nrow(i), function(j) j<-i$start[j]:i$stop[j]))
+          dmrBP<-lapply(pdmrBP, function(i) unlist(i))
+          # lump all bp together then table them to determine which ones overlap
+          bps<-table(unlist(dmrBP))
+          bpsOne<-as.numeric(names(bps[which(bps==1)]))
+          bpsTwo<-as.numeric(names(bps[which(bps==2)]))
+
+          # extract double overlaps for each analysis
+          aX<-dmrBP[[1]][match(bpsTwo, dmrBP[[1]], nomatch=0)]
+          bX<-dmrBP[[2]][match(bpsTwo, dmrBP[[2]], nomatch=0)]
+          
+          # determine double overlap values for venn diagram
+          uBPa<-dmrBP[[1]][match(bpsOne, dmrBP[[1]], nomatch=0)]
+          uBPb<-dmrBP[[2]][match(bpsOne, dmrBP[[2]], nomatch=0)]
+          overlapBPab<-bpsTwo
+          
+          uDMRa<-lapply(pdmrBP, function(i) i<-sapply(i, function(j) length(which(!is.na(match(j,uBPa))))>0))
+          uDMRb<-lapply(pdmrBP, function(i) i<-sapply(i, function(j) length(which(!is.na(match(j,uBPb))))>0))
+          overlapDMRab<-lapply(pdmrBP, function(i) i<-sapply(i, function(j) length(which(!is.na(match(j,overlapBPab))))>0))
+        
+          for (i in 1:length(chrList)){
+               uDMRa[[i]][uDMRa[[i]]&(overlapDMRab[[i]])]<-FALSE
+               uDMRb[[i]][uDMRb[[i]]&(overlapDMRab[[i]])]<-FALSE
+          }
+          uDMRa<-sum(unlist(uDMRa))
+          uDMRb<-sum(unlist(uDMRb))
+          overlapDMRab<-sum(unlist(overlapDMRab))
+          
+          # store results in arrays
+          uniqueAbp<-c(uniqueAbp, length(uBPa))
+          uniqueBbp<-c(uniqueBbp, length(uBPb))
+          overlapABbp<-c(overlapABbp, length(overlapBPab))
+          
+          uniqueAdmr<-c(uniqueAdmr, uDMRa)
+          uniqueBdmr<-c(uniqueBdmr, uDMRb)
+          overlapABdmr<-c(overlapABdmr, overlapDMRab)
+          
+     }
+     SuniqueAdmr<-sum(uniqueAdmr)
+     SuniqueBdmr<-sum(uniqueBdmr)
+     SoverlapABdmr<-sum(overlapABdmr)
+
+     if (scaled){
+          SoverlapABdmr<-SoverlapABdmr/2
+     }
+     area1=SuniqueAdmr+SoverlapABdmr
+     area2=SuniqueBdmr+SoverlapABdmr
+     n12=SoverlapABdmr
+
+     
+     
+     plot.new()
+     draw.pairwise.venn(area1=area1, area2=area2, cross.area=n12, category=names, col=rep("black", 2), fill=c("skyblue", "orange"), ...)
+     
+}
 
 # this function is based on draw.pairwise.venn() but is customized for DMR overlaps. This variation allows only a single grouping for each DMR. DMRs are added to the categories in the order of 3 overlaps, 2 overlaps, unique. 
 vennDMRthree<-function(dmrList, names, scaled=T, ...){

@@ -26,7 +26,6 @@ MTCpvc<-which(pValues==MTCreportPvalue)
 load(paste(resultsDirectory, comparisonNames[an], "/methLists.RData", sep=""))
 load(paste(resultsDirectory, comparisonNames[an], "/methResults.RData", sep=""))
 
-
 ```
 
 
@@ -51,6 +50,7 @@ pandoc.table(as.data.frame(dmrNumberTable), split.tables=110, style="rmarkdown",
 
 ```
 
+************
 
 ```{r, echo=FALSE, results="asis", message=FALSE, warning=FALSE}
 
@@ -75,7 +75,7 @@ plotChromosomes(siteTable=methList2p[[pvc]], chrLengths=chrLengths, ymar=5, clus
 
 **Figure 1.** This figure shows the DMR locations on the individual chromosomes or contigs. Only DMR containing at least two significant windows at a p-value threshold of `r format(reportPvalue,scientific=T)` are shown here.
 
-******
+************
 
 ## CpG density histogram
 
@@ -85,3 +85,20 @@ plotCpGdensity(methList2p[[pvc]], main="", xlab="Number of CpG sites per 100bp",
 ```
 
 **Figure 2.** This figure is a histogram of the number of DMRs at different CpG densities. Only DMR containing at least two significant windows at a p-value threshold of `r format(reportPvalue,scientific=T)` are shown here.
+
+************
+
+## DMR length histogram
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=5}
+plotDMRlength(methList2p[[pvc]])
+```
+
+**Figure 3.** This figure is a histogram of the DMR lengths. Only DMR containing at least two significant windows at a p-value threshold of `r format(reportPvalue,scientific=T)` are shown here.
+
+
+
+
+
+
+

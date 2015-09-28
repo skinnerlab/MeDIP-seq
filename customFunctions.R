@@ -37,3 +37,6 @@ source("./functions/mapExtract.R")
 source("./functions/formatForCluster.R")
 # Excludes selected chromosomes from dmrList
 source("./functions/excludeChr.R")
+# Plot DMR length
+source("./functions/plotDMRlength.R")
+

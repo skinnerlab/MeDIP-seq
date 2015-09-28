@@ -35,13 +35,25 @@ plotCpGdensity<-function(dmrList, xlab="Number of CpG sites per 100bp", ylab="Nu
      if (nrow(dmrList)>0){
           
           # all CpG density > 10.5 get lumped together into one group
-          dmrList$cpgDensity[dmrList$cpgDensity>10]<-11
+          dmrList$cpgDensity[dmrList$cpgDensity>10]<-10.1
           
           # generate plot
-          hist(dmrList$cpgDensity, breaks=0:12, xaxt="n", 
-               xlab=xlab, ylab=ylab, xaxp=c(0,10,10), main=main, ...)
+          hist(dmrList$cpgDensity, breaks=0:11, xaxt="n", xlab=xlab, ylab=ylab, xaxp=c(0,10,10), main=main, ...)
           axis(1, at=c(0:11), labels=c(0:10, ">10"))
      } else {
           return()
      }        
 }
+
+
+
+
+
+
+
+
+
+
+
+
+

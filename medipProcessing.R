@@ -82,14 +82,26 @@ for (analysis in 1:length(comparison)){
      ## Multiple significant windows ##
      ##################################
      methList2p<-lapply(methList, function(i){
-          if (!is.na(i)){
-            i<-i[which(i$numSigWin>=2),]
+          if(!is.null(i)){
+               if (!is.na(i)){
+                    i<-i[which(i$numSigWin>=2),]
+               } else {
+                    i<-NA
+               }
+          } else {
+               i<-NULL
           }
      })
      MTCmethList2p<-lapply(MTCmethList, function(i){
-       if (!is.na(i)){
-          i<-i[which(i$numSigWin>=2),]
-       }
+          if(!is.null(i)){
+               if (!is.na(i)){
+                    i<-i[which(i$numSigWin>=2),]
+               } else {
+                    i<-NA
+               }
+          } else {
+               i<-NULL
+          }
      })
 
      # create table of DMR numbers and save to file in results. This will be used to select the p-value to use for further analysis.

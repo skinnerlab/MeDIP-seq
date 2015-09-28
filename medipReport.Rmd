@@ -56,7 +56,7 @@ if (mapReads){
 
 The *`r species`* reference genome was provided by `r provider` and was downloaded from `r genomeSourceFiles`. The mapped reads were converted to the sorted BAM file format using Samtools.
 
-******
+************
 
 ## Differential coverage analysis
 The differential coverage analysis was performed using the MEDIPS R package. The analysis used a windows size of `r ws`bp. The `r diff.method` method was used to calculate p-values. The `r p.adj` multiple testing adjustment was also calculated. Annotation information was downloaded from `r ifelse(annotationType=="biomart", 'the Ensembl database using the biomaRt R package', annotationSource)`.
@@ -73,6 +73,7 @@ pandoc.table(as.data.frame(MTCdmrNumberTable), split.tables=110, style="rmarkdow
 
 ```
 
+************
 
 ```{r, echo=FALSE, results="asis", message=FALSE, warning=FALSE}
 
@@ -164,14 +165,14 @@ plotCpGdensity(methList2p[[pvc]], main="", xlab="Number of CpG sites per 100bp",
 ### DMR characteristics
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=5}
-hist(methList[[pvc]]$length, main="", xlab="DMR length (bp)", ylab="Number of DMR")
+plotDMRlength(methList[[pvc]])
 
 ```
 
 **Figure 7.** This figure is a histogram of the DMR lengths. All DMRs at a p-value threshold of `r format(reportPvalue,scientific=T)` are shown here.
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=5}
-hist(methList2p[[pvc]]$length, main="", xlab="DMR length (bp)", ylab="Number of DMR")
+plotDMRlength(methList2p[[pvc]])
 
 ```
 
