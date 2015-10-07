@@ -48,36 +48,7 @@ for (analysis in 1:length(comparison)){
           }
      }
      
-     ####################
-     ## Add Annotation ##
-     ####################
-     annMat<-list()
-     MTCannMat<-list()
-     # add Annotation information for each DMR. This is separate from the loop so that the import.gff and getAnnotation functions are only run once
-     if (annotationType=="gff"){
-          gff<-import.gff(paste(genomeDirectory, annotationGFF, sep=""))
-          methList<-lapply(methList, function(i){
-               addAnnotationGFF(dmrList=i, gff=gff, maxDMR=maxDMRnum, chrPrefix=chrPrefix)
-          })
-          MTCmethList<-lapply(MTCmethList, function(i){
-               addAnnotationGFF(dmrList=i, gff=gff, maxDMR=maxDMRnum, chrPrefix=chrPrefix)
-          })
-     }
-     if (annotationType=="biomart"){
-          annotationObject<-MEDIPS.getAnnotation(host=biomartHost, dataset=biomartDataset, annotation=c("GENE"), chr=chr.select)
-          
-          for (i in 1:length(methList)){
-               a<-addAnnotationBiomart(dmrList=methList[[i]], annotationObject=annotationObject, maxDMR=maxDMRnum, chrPrefix=chrPrefix)
-               methList[[i]]<-a$dmrList
-               annMat[[i]]<-a$annMat
-          }
-          for (i in 1:length(MTCmethList)){
-               b<-addAnnotationBiomart(dmrList=MTCmethList[[i]], annotationObject=annotationObject, maxDMR=maxDMRnum, chrPrefix=chrPrefix)
-               MTCmethList[[i]]<-b$dmrList
-               MTCannMat[[i]]<-b$annMat
-          }
-     }
-     
+
      ##################################
      ## Multiple significant windows ##
      ##################################
@@ -119,7 +90,7 @@ for (analysis in 1:length(comparison)){
      write.csv(file=paste(resultsDirectory, comparisonNames[analysis], "/dmrNumber.csv", sep=""), x=dmrNumberTable, quote=F, row.names=FALSE) 
      write.csv(file=paste(resultsDirectory, comparisonNames[analysis], "/MTCdmrNumber.csv", sep=""), x=MTCdmrNumberTable, quote=F, row.names=FALSE) 
      
-     save(methList, methList2p, annMat, MTCmethList, MTCmethList2p, MTCannMat, dmrNumberTable, MTCdmrNumberTable, file=paste(resultsDirectory, comparisonNames[analysis], "/methLists.RData", sep=""))
+     save(methList, methList2p, MTCmethList, MTCmethList2p, dmrNumberTable, MTCdmrNumberTable, file=paste(resultsDirectory, comparisonNames[analysis], "/methLists.RData", sep=""))
      save(methListEtc, MTCmethListEtc, file=paste(resultsDirectory, comparisonNames[analysis], "/methListEtc.RData", sep=""))
 }
 
