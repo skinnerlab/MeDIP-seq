@@ -5,12 +5,14 @@
 # stop: Stop position on chromosome for mark
 # chrLengths: vector of chromosome lengths, labels should be chromosome names
 
-plotChromosomes<-function(siteTable=NULL, clusters=NULL, chrLengths, ymar=4, xmar=5, cex.axis=1, markerWidth=0, main="", ...){
+plotChromosomes<-function(siteTable=NULL, clusters=NULL, chrLengths, ymar=4, 
+                          xmar=5, cex.axis=1, markerWidth=0, main="", ...) {
+     # Check for null DMR table
      if (is.null(nrow(siteTable))) return()
      if(nrow(siteTable)>0){
           
-          chrNames <- unique(siteTable$chr)
-          chrLengths <- chrLengths[match(chrNames, names(chrLengths))]
+          chrNames <- names(chrLengths)
+          
           glen=0.4
           if (markerWidth==0){
                markerWidth<-max(chrLengths)/100
@@ -25,6 +27,7 @@ plotChromosomes<-function(siteTable=NULL, clusters=NULL, chrLengths, ymar=4, xma
           # plot lines and points for each chromosome
           for (i in chrNames) { 
                rows <- siteTable[which(siteTable[,"chr"]==i),]
+#               if (nrow(rows) < 1)
                siteStart <- as.numeric(rows[,"start"])
                siteStop <- as.numeric(rows[,"stop"])
                if(!is.null(clusters)){
@@ -85,12 +88,14 @@ plotPoly<-function(chrName, siteStart, siteStop, chrLengths, markerWidth=500000,
      ytop <- ifelse(scaledStart>0, ypos+glen, ypos-glen)
      
      polys <- c()
-     for ( i in 1:length(scaledMidpoint) ){
-          polys<- rbind(polys,
-                        cbind(abs(scaledMidpoint[i]),ypos),
-                        cbind(abs(scaledMidpoint[i])-markerWidth*scaledMax, ytop),
-                        cbind(abs(scaledMidpoint[i])+markerWidth*scaledMax, ytop),
-                        cbind(1,NA))
+     if (nSites > 0){
+          for ( i in 1:length(scaledMidpoint) ){
+               polys<- rbind(polys,
+                             cbind(abs(scaledMidpoint[i]),ypos),
+                             cbind(abs(scaledMidpoint[i])-markerWidth*scaledMax, ytop),
+                             cbind(abs(scaledMidpoint[i])+markerWidth*scaledMax, ytop),
+                             cbind(1,NA))
+          }
      }
      ## Plot site markers
      polygon(polys, col=color.marker,border=color.border)

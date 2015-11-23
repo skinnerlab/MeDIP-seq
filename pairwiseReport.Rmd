@@ -1,0 +1,90 @@
+---
+output: pdf_document
+---
+<!-- Created by Daniel Beck on 10/14/2015 -->
+<!-- Modified 11/4/2015 -->
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+source("dataNames.R")
+source("customFunctions.R")
+library(pander)
+library(bsgenomePackageName, character.only = T, lib.loc = genomeDirectory)
+library(VennDiagram)
+
+all <- 1
+control.pairs <- c(2, 3, 4)
+c.names <- c("C1vsC2", "C1vsC3", "C2vsC3")
+treatment.pairs <- c(5, 6, 7)
+t.names <- c("T1vsT2", "T1vsT3", "T2vsT3")
+p.value <- 1e-4
+pv <- which(pValues == p.value)
+
+# Load main analysis
+temp = local({load(paste(resultsDirectory, 
+                         comparisonNames[all], 
+                         "/methLists.RData", sep = "")); environment()})
+all.dmr <- temp$methList2p[[pv]]
+all.name <- "full analysis"
+
+# Load control pairs
+c.dmr.list <- list()
+for (i in 1:length(control.pairs)) {
+  temp <- local({load(paste(resultsDirectory, 
+                           comparisonNames[control.pairs[i]], 
+                           "/methLists.RData", sep = "")); environment()})
+  c.dmr.list[[i]] <- temp$methList2p[[pv]]
+}
+# Load treatment pairs
+t.dmr.list <- list()
+for (i in 1:length(treatment.pairs)) {
+  temp <- local({load(paste(resultsDirectory, 
+                           comparisonNames[treatment.pairs[i]], 
+                           "/methLists.RData", sep = "")); environment()})
+  t.dmr.list[[i]] <- temp$methList2p[[pv]]
+}
+
+#a<-strsplit(comparisonNames, split="_|-")
+#b<-as.data.frame(do.call(rbind, a[which(sapply(a, function(i) i[1])=="pair")]))
+#b$V2<-as.numeric(as.character(b$V2))
+#b$V3<-as.numeric(as.character(b$V3))
+#which(seqFiles$ctFlag[as.numeric(b$V2)]==seqFiles$ctFlag[as.numeric(b$V3)])
+```
+
+# MeDIP pairwise analysis summary for the `r projectName` project.
+Summary generated `r format(Sys.Date(), format="%B %d %Y")` 
+
+## Analysis
+The standard MeDIP analysis pipeline was run to identify regions of differential coverage between pairs of samples. Each sample was compared with every other sample. DMR were identified using an edgeR p-value threshold of `r p.value`. 
+
+```{r, echo = FALSE, results = "asis", message = FALSE, warning = FALSE}
+## DMR number table for each sample
+
+dmrNumbers<-c(nrow(all.dmr), sapply(c.dmr.list, nrow), sapply(t.dmr.list, nrow))
+names(dmrNumbers)<-c("full analysis", c.names, t.names)
+
+pandoc.table(as.data.frame(t(dmrNumbers)), split.tables = 110, style = "rmarkdown", 
+             caption = paste("This table shows the number of DMR found for each analysis. 
+                              All DMR have at least two significant windows at a p-value 
+                              threshold of ", p.value, sep=""))
+
+```
+
+## Overlapping DMR
+The following figures show the number of overlapping DMR between each pairwise analysis and the full analysis. 
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, fig.height = 4.5}
+
+vennDMR(dmr.list=c(list(all.dmr), c.dmr.list), group.names=c(all.name, c.names))
+
+
+```
+**Figure 1.** This figure shows the overlapping DMR between the control vs. control pairwise analyses and the full analysis.
+
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, fig.height = 4.5}
+
+vennDMR(dmr.list=c(list(all.dmr), t.dmr.list), group.names=c(all.name, t.names))
+```
+**Figure 2.** This figure shows the overlapping DMR between the treatment vs. treatment pairwise analyses and the full analysis.
+
+
