@@ -11,9 +11,9 @@ medipPipeline is available at https://github.com/danlbek/medipPipeline.
 
 **dataNames.R:** Configuration file for the pipeline. It contains filenames, file locations, constants, and other adjustable parameters.
 
-**prepareData.R:** Maps raw reads as well as generating fastq quality reports (using bowtie2 and fastqc.
+**prepareData.R:** Cleans, filteres (Trimmomatic), and maps (Bowtie2) reads as well as generates read quality reports (FastQC).
 
-**medipAnalysis.R:** Performs the basic MeDIP analysis using the MEDIPS library.
+**medipAnalysis.R:** Performs the basic MeDIP-seq analysis using the MEDIPS library.
 
 **medipProcessing.R:** Identifies DMR and generates DMR tables.
 
@@ -21,7 +21,7 @@ medipPipeline is available at https://github.com/danlbek/medipPipeline.
 
 **customFunctions.R:** Wrapper for loading all custom functions used by the pipeline. These functions are stored in the functions folder.
 
-**generateReports.R:** Wrapper for generating reports summarizing the MeDIP-seq results. This calls medipReport.Rmd and briefSummary.Rmd.
+**generateReports.R:** Wrapper for generating reports summarizing the MeDIP-seq results. This script renders the report using the **mediepReport.Rmd** code.
 
 **publicationFiles.R:** Produces separate files for selected tables and plots. 
 

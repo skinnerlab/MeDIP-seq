@@ -1,25 +1,23 @@
-## Daniel Beck
-## Created 6/29/2015
-## Modified
-##   6/30/2015 Continued initial development. Script ready for testing.
-##   7/1/2015  Fixed misnamed variable error.
-##   7/6/2015  Added flags for analysis customization
-##   7/8/2015  Added annotation gff file download if necessary
-##   7/9/2015  Added multithreading for samtools view and sort
+## Created 6/29/2015 by Daniel Beck
+## Last modified 4/5/2016
 
-## This script prepares the raw data for analysis by medipAnalysis.R. 
-## It may include raw file cleaning, bowtie2 index generation, mapping, BSgenome creation, etc.
-## This script requires a dataset specific R script that defines filenames, locations, etc.
+## This script prepares the raw data for analysis by medipAnalysis.R. It may include 
+## raw file cleaning, bowtie2 index generation, mapping, and BSgenome creation. This 
+## script requires a configuration file (dataNames.R) that defines filenames, locations,
+## and other parameter values.
 
-# load relevant libraries
+# Load relevant libraries and configuration scripts
 library(BSgenome)
-
-# source dataset specific code
 source("dataNames.R")
+
 
 #####################
 ## Download Genome ##
 #####################
+## This section allows for genome and/or annotation download from http or ftp sites.
+## There is currently no check for download success or file integrety. This will need to 
+## be checked manually if there are any concerns.
+
 if (downloadGenome) {
   system(paste("wget -nH -t inf -P ", genomeDirectory, " ", genomeSourceFiles, sep=""))
   system(paste("gzip -d ", genomeDirectory, "*.gz", sep=""))
@@ -34,6 +32,10 @@ if (downloadAnnotation) {
 ############################
 ## Generate FastQC report ##
 ############################
+## This section generates the FastQC reports for each sample file. Seperate reports are 
+## generated for each paired end. This step is currently performed prior to data cleaning
+## and filtering. This may need to be moved to after cleaning depending on question.
+
 if (generateFastQC) {
   for (i in 1:length(seqFiles$sampleName)) {
     system(paste("fastqc ", dataDirectory, seqFiles$p1FileName[i], sep=""))
@@ -41,9 +43,39 @@ if (generateFastQC) {
   }
 }
 
+
+########################
+## Clean/filter reads ##
+########################
+## This section runs Trimmomatic to clean and filter raw sequence reads. The adapter file is
+## curently hardcoded. This may need to be changed in the future to allow different adapters
+## to be specified in dataNames.R. Trimmomatic options are also hardcoded and are based on 
+## options used by the Arizona sequencing lab.
+
+for (i in 1:length(seqFiles$sampleName)) {
+  if (cleanReads) {
+    # run Trimmomatic
+    system(paste("java -jar /apps/Trimmomatic-0.36/trimmomatic-0.36.jar PE -threads " , 
+                 numThreads, " -phred33 ", dataDirectory, seqFiles$p1FileName[i], " ", 
+                 dataDirectory, seqFiles$p2FileName[i], " ", dataDirectory, 
+                 cleanFileNames$cp1FileName[i], " ", dataDirectory, cleanFileNames$cs1FileName[i],
+                 " ", dataDirectory, cleanFileNames$cp2FileName[i], " ", dataDirectory, 
+                 cleanFileNames$cs2FileName[i],
+                 " ILLUMINACLIP:/apps/Trimmomatic-0.36/adapters/TruSeq3-PE-2.fa:2:30:11:1:true ",
+                 "TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:20", sep=""))
+  }
+}
+
+
 ###############
 ## Map reads ##
 ###############
+## This section maps the reads to the reference genome using Bowtie2. Two steps are required.
+## First, the Bowtie2 index is built from the reference genome. Second, the sample reads are 
+## mapped to the reference. This step also converts the mapped read files from SAM to a sorted
+## BAM format using Samtools. All mapping options are set in dataNames.R. Similarily, each of
+## the steps performed here are conditional based on flags set in dataNames.R.
+
 setwd(genomeDirectory)
 if (buildBTindex) {
 # build bowtie2 index
@@ -58,19 +90,35 @@ if (buildBTindex) {
                   indexName, 
                   sep=""))
 }
-# allign illumina reads to reference using Bowtie2. 
-#Convert resulting SAM files to sorted BAM files
+
+# map illumina reads to reference using Bowtie2. 
+# convert resulting SAM files to sorted BAM files
 for (i in 1:length(seqFiles$sampleName)) {
   if (mapReads) {
     print(paste("Running Bowtie2 on", seqFiles$sampleName[i], sep=" "))
-    system(paste("bowtie2 -x ", indexName, 
-                 " ", otherMappingOptions, 
-                 " -p ", numThreads, 
-                 " -1 ", dataDirectory, seqFiles$p1FileName[i], 
-                 " -2 ", dataDirectory, seqFiles$p2FileName[i], 
-                 " -S ", dataDirectory, samFileName[i],
-                 sep=""))
+    # Run bowtie2 mapping. If cleaning reads, use cleaned names. Otherwise, use original files.
+    if (useCleanReads) {
+      system(paste("bowtie2 -x ", indexName, 
+                   " ", otherMappingOptions, 
+                   " -p ", numThreads, 
+                   " -1 ", dataDirectory, cleanFileNames$cp1FileName[i], 
+                   " -2 ", dataDirectory, cleanFileNames$cp2FileName[i], 
+                   " -U ", dataDirectory, cleanFileNames$cs1FileName[i], ",", 
+                           dataDirectory, cleanFileNames$cs2FileName[i],
+                   " -S ", dataDirectory, samFileName[i],
+                   sep=""))
+    } else {
+      # Use original file names if cleaned read files are not used
+      system(paste("bowtie2 -x ", indexName, 
+                   " ", otherMappingOptions, 
+                   " -p ", numThreads, 
+                   " -1 ", dataDirectory, seqFiles$p1FileName[i], 
+                   " -2 ", dataDirectory, seqFiles$p2FileName[i], 
+                   " -S ", dataDirectory, samFileName[i],
+                   sep=""))
+    }
   }
+  
   if (convertToBam) {
     # convert to sorted BAM format using samtools
     system(paste("samtools view -@ ", numSamThreads, 
@@ -86,12 +134,11 @@ for (i in 1:length(seqFiles$sampleName)) {
 ####################
 ## Forge BSgenome ##
 ####################
-
-# Build BSgenome, install it locally, then load it. This is a convoluted way of 
-# doing things, but hopefully it will work on the server. It is also generic, 
-# requireing only a specific file structure. This structure should likely be done 
-# for every project for consistency anyway. If this becomes a problem, the paths 
-# can be abstracted to variables.
+## This section builds the BSgenome package, installs it locally, and loads it. This is a 
+## slightly convoluted way of doing things, but is generic, requiring only a specific file 
+## structure. This structure should likely be done for every project for consistency anyway. 
+## If this becomes a problem, the paths can be abstracted to variables. Nearly all options
+## to the BSgenome package creation can be specified in the dataNames.R configuration file.
 
 if (buildBSgenome){
   # There must be a better way of creating a package than writing to file then reading from file.

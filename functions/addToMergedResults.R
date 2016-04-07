@@ -1,7 +1,10 @@
+## Created -/-/2015 by Daniel Beck
+## Last modified 4/6/2016
 
-# This function collects all information about the original DMR windows and puts 
-# it in a dataframe with rows identical to the merged DMR list. This allows for 
-# verification of p-value and count information.
+## This function collects all information about the original DMR windows and puts 
+## it in a dataframe with rows identical to the merged DMR list. This allows for 
+## verification of p-value and count information.
+
 addToMergedResults <- function(allWindows, mergedWindows) {
   # if data is empty, return NA. If data has one row, return that row.
   if (nrow(allWindows) <= 1) {

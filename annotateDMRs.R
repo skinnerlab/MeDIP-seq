@@ -1,6 +1,5 @@
-## Daniel Beck
-## Created 10/5/2015
-## Modified 10/8/2015
+## Created 10/5/2015 by Daniel Beck
+## Last modified 4/6/2016
 
 ## This code is intended to add annotation to DMRs identified by the medipProcessing script.
 
@@ -10,19 +9,19 @@ source("customFunctions.R")
 library(bsgenomePackageName, character.only = T, lib.loc = genomeDirectory)
 library(biomaRt)
 
-
 for (analysis in 1:length(comparison)) {
   if (!(comparison[[analysis]]$pairs[1])) {  # Don't calculate annotation for pair analysis
     load(paste(resultsDirectory, comparisonNames[analysis], "/methLists.RData", sep = ""))
        
-    ####################
-    ## Add Annotation ##
-    ####################
-    
     annMat <- list()
     MTCannMat <- list()
     # add Annotation information for each DMR. This is separate from the loop so that the 
     # import.gff and getAnnotation functions are only run once
+    
+    ########################
+    ## Add GFF annotation ##
+    ########################
+    
     if (annotationType == "gff") {
       gff <- import.gff(paste(genomeDirectory, annotationGFF, sep = ""))
       methList <- lapply(methList, function(i) {
@@ -36,9 +35,11 @@ for (analysis in 1:length(comparison)) {
                                                chrPrefix = chrPrefix)
                               })
     }
-    
+    ############################
+    ## Add Biomart annotation ##
+    ############################
     if (annotationType == "biomart") {
-      annotationObject <- useMart(biomart = "ensembl", 
+      annotationObject <- useMart(biomart = "ensembl",
                                   dataset = biomartDataset, 
                                   host = biomartHost)
             
@@ -48,6 +49,7 @@ for (analysis in 1:length(comparison)) {
                                   maxDMR = maxDMRnum, chrPrefix = chrPrefix)
         methList[[i]] <- a$dmrList
         annMat[[i]] <- a$annMat
+        
       }
       for (i in 1:length(MTCmethList)) {
         b <- addAnnotationBiomart(dmrList = MTCmethList[[i]], 
@@ -57,12 +59,30 @@ for (analysis in 1:length(comparison)) {
         MTCannMat[[i]] <- b$annMat
       }
     }
-       
-    ## Re-calculate twoWindow DMRs to include annotation information
-       
-    ##################################
-    ## Multiple significant windows ##
-    ##################################
+    
+    ##########################
+    ## Add BLAST annotation ##
+    ##########################
+    if (annotationType == "blast") {
+      for (i in 1:length(methList)) {
+        a <- addAnnotationBlast(dmrList = methList[[i]], 
+                                maxDMR = maxDMRnum, chrPrefix = chrPrefix)
+        methList[[i]] <- a$dmrList
+        annMat[[i]] <- a$annMat
+        
+      }
+      for (i in 1:length(MTCmethList)) {
+        b <- addAnnotationBlast(dmrList = MTCmethList[[i]], 
+                                maxDMR = maxDMRnum, chrPrefix = chrPrefix)
+        MTCmethList[[i]] <- b$dmrList
+        MTCannMat[[i]] <- b$annMat
+      }
+    }
+    ################################
+    ## Update multiple window DMR ##
+    ################################
+    ## Re-calculate multiple window DMR to include annotation information
+    
     methList2p <- lapply(methList, function(i) {
       if(!is.null(i)) {
         if (!is.na(i)) {

@@ -1,8 +1,8 @@
 ---
 output: pdf_document
 ---
-<!-- Created by Daniel Beck on 10/14/2015 -->
-<!-- Modified 11/4/2015 -->
+<!-- Created 10/14/2015 by Daniel Beck -->
+<!-- Last modified 11/4/2015 -->
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
 source("dataNames.R")

@@ -1,8 +1,9 @@
+## Created -/-/2015 by Daniel Beck
+## Last modified 4/6/2016
 
+## This function calculates CpG density from a DMR table. The table must include "chr", 
+## "start", "stop", and "length"
 
-
-# This function calculates CpG density from a DMR list. The list must include
-# chr, start, stop, and length
 calcCpGdensity <- function(dmrList, maxDMR = 1000) {
   if (is.null(nrow(dmrList)))
     return(dmrList)
@@ -11,9 +12,9 @@ calcCpGdensity <- function(dmrList, maxDMR = 1000) {
       dinucleotideFrequency(subseq(
         eval(parse(text = referenceName))[[match(i["chr"],
                                                  seqnames(eval(parse(text = referenceName))))]],
-        start = as.numeric(i["start"]), end = as.numeric(i["stop"])
-      ))["CG"]
-    })
+        start = as.numeric(i["start"]), 
+        end = as.numeric(i["stop"])))["CG"]
+      })
     cpgDensity <- 100 * cpgNum / dmrList$length
     return(cbind(dmrList, cpgNum, cpgDensity))
   } else {

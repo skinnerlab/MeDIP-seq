@@ -1,0 +1,246 @@
+panther_mf_all,Freq,Classification
+MF00001:Receptor,1061,Receptor
+MF00002:G-protein coupled receptor,448,Receptor
+MF00003:Nuclear hormone receptor,33,Transcription
+MF00004:Immunoglobulin receptor family member,77,Receptor
+MF00005:Cytokine receptor,63,Receptor
+MF00006:Interleukin receptor,33,Receptor
+MF00007:Interferon receptor,4,Receptor
+MF00008:Ligand-gated ion channel,37,Transport
+MF00009:Glutamate receptor,2,Receptor
+MF00010:Acetylcholine receptor,16,Receptor
+MF00012:Other ligand-gated ion channel,15,Transport
+MF00013:Tyrosine protein kinase receptor,49,Receptor
+MF00014:Serine/threonine protein kinase receptor,15,Receptor
+MF00015:Other receptor,154,Receptor
+MF00016:Signaling molecule,457,Signaling
+MF00017:Cytokine,78,Growth Factor
+MF00018:Chemokine,38,Growth Factor
+MF00019:Growth factor,60,Growth Factor
+MF00020:Peptide hormone,54,Hormone
+MF00021:Neuropeptide,11,Growth Factor
+MF00022:Neurotrophic factor,6,Growth Factor
+MF00023:Other signaling molecule,146,Signaling
+MF00024:Ion channel,181,Transport
+MF00030:Anion channel,22,Transport
+MF00031:Voltage-gated ion channel,47,Transport
+MF00032:Voltage-gated sodium channel,14,Transport
+MF00033:Voltage-gated calcium channel,28,Transport
+MF00035:Other ion channel,36,Transport
+MF00036:Transcription factor,1334,Transcription
+MF00038:Homeobox transcription factor,155,Transcription
+MF00039:Other transcription factor,173,Transcription
+MF00040:Cell adhesion molecule,288,Extracellular Matrix
+MF00042:Nucleic acid binding,1561,Transcription
+MF00043:DNA-directed DNA polymerase,18,Cell Cycle
+MF00044:Nuclease,103,DNA Repair
+MF00045:Exodeoxyribonuclease,11,Translation
+MF00046:Endodeoxyribonuclease,10,Translation
+MF00048:DNA ligase,4,DNA Repair
+MF00049:DNA glycosylase,9,Epigenetic
+MF00050:DNA methyltransferase,16,Epigenetic
+MF00051:Helicase,120,DNA Replication
+MF00052:DNA-directed RNA polymerase,35,Transcription
+MF00053:Other RNA-binding protein,114,Translation
+MF00054:RNA methyltransferase,14,Epigenetic
+MF00055:Single-stranded DNA-binding protein,14,Development
+MF00056:DNA strand-pairing protein,3,Cell Cycle
+MF00057:DNA topoisomerase,6,Cell Cycle
+MF00059:Replication origin binding protein,11,Cell Cycle
+MF00060:Damaged DNA-binding protein,18,DNA Repair
+MF00061:Centromere DNA-binding protein,10,Cell Cycle
+MF00062:Reverse transcriptase,3,Development
+MF00063:Histone,41,Epigenetic
+MF00064:DNA polymerase processivity factor,2,Cell Cycle
+MF00065:mRNA processing factor,89,Translation
+MF00067:mRNA polyadenylation factor,10,Translation
+MF00068:mRNA splicing factor,64,Translation
+MF00069:Ribonucleoprotein,55,Translation
+MF00070:Chromatin/chromatin-binding protein,93,Epigenetic
+MF00071:Translation factor,18,Translation
+MF00072:Translation initiation factor,6,Translation
+MF00073:Translation elongation factor,3,Translation
+MF00074:Translation release factor,7,Translation
+MF00075:Ribosomal protein,178,Translation
+MF00076:Other nucleic acid binding,25,Translation
+MF00077:Chaperone,111,Protein Binding
+MF00078:Chaperonin,17,Protein Binding
+MF00079:Other chaperones,70,Protein Binding
+MF00082:Transporter,519,Transport
+MF00083:Cation transporter,137,Transport
+MF00084:ATP-binding cassette (ABC) transporter,44,Transport
+MF00085:Carbohydrate transporter,30,Transport
+MF00086:Other transporter,271,Transport
+MF00087:Transfer/carrier protein,180,Binding Protein
+MF00088:Apolipoprotein,4,Binding Protein
+MF00089:Mitochondrial carrier protein,64,Binding Protein
+MF00090:Other transfer/carrier protein,63,Binding Protein
+MF00091:Cytoskeletal protein,517,Cytoskeleton
+MF00092:Other cytoskeletal proteins,23,Cytoskeleton
+MF00093:Select regulatory molecule,488,Signaling
+MF00094:Kinase modulator,69,Signaling
+MF00095:Kinase inhibitor,10,Signaling
+MF00096:Phosphatase modulator,13,Signaling
+MF00097:G-protein,147,Signaling
+MF00098:Large G-protein,1,Signaling
+MF00099:Small GTPase,137,Signaling
+MF00100:G-protein modulator,168,Signaling
+MF00101:Guanyl-nucleotide exchange factor,69,Signaling
+MF00102:Protease inhibitor,26,Protease
+MF00107:Kinase,392,Signaling
+MF00108:Protein kinase,298,Signaling
+MF00109:Carbohydrate kinase,16,Signaling
+MF00110:Nucleotide kinase,28,Signaling
+MF00112:Other kinase,36,Signaling
+MF00113:Phosphatase,148,Signaling
+MF00114:Protein phosphatase,78,Signaling
+MF00115:Carbohydrate phosphatase,4,Signaling
+MF00116:Nucleotide phosphatase,13,Signaling
+MF00117:Other phosphatase,58,Signaling
+MF00118:Synthase and synthetase,115,Metabolism
+MF00119:Synthase,69,Metabolism
+MF00120:Synthetase,38,Metabolism
+MF00121:Aminoacyl-tRNA synthetase,20,Metabolism
+MF00122:Other synthase/synthetase,4,Metabolism
+MF00123:Oxidoreductase,260,Metabolism
+MF00124:Oxygenase,23,Metabolism
+MF00125:Peroxidase,15,Metabolism
+MF00126:Dehydrogenase,107,Metabolism
+MF00127:Reductase,77,Metabolism
+MF00128:Oxidase,29,Metabolism
+MF00129:Hydroxylase,9,Metabolism
+MF00130:Other oxidoreductase,22,Metabolism
+MF00131:Transferase,466,Metabolism
+MF00132:Nucleotidyltransferase,44,Metabolism
+MF00133:Methyltransferase,82,Metabolism
+MF00134:Transketolase,3,Metabolism
+MF00135:Transaldolase,1,Metabolism
+MF00136:Acetyltransferase,63,Metabolism
+MF00137:Glycosyltransferase,71,Metabolism
+MF00138:Transaminase,8,Metabolism
+MF00139:Acyltransferase,68,Metabolism
+MF00140:Other transferase,73,Metabolism
+MF00141:Hydrolase,414,Metabolism
+MF00142:Lipase,67,Metabolism
+MF00143:Phospholipase,50,Metabolism
+MF00144:Esterase,30,Metabolism
+MF00145:Amylase,2,Metabolism
+MF00146:Deacetylase,12,Metabolism
+MF00147:Deaminase,2,Metabolism
+MF00148:Phosphodiesterase,30,Metabolism
+MF00149:Pyrophosphatase,3,Metabolism
+MF00150:Glycosidase,43,Metabolism
+MF00151:Glucosidase,5,Metabolism
+MF00152:Galactosidase,2,Metabolism
+MF00153:Protease,347,Protease
+MF00154:Metalloprotease,122,Protease
+MF00155:Phosphorylase,13,Metabolism
+MF00156:Other hydrolase,124,Metabolism
+MF00157:Lyase,68,Metabolism
+MF00158:Aldolase,1,Metabolism
+MF00159:Dehydratase,21,Metabolism
+MF00160:Hydratase,10,Metabolism
+MF00161:Decarboxylase,12,Metabolism
+MF00162:Cyclase,5,Metabolism
+MF00164:Guanylate cyclase,3,Metabolism
+MF00165:Other lyase,16,Metabolism
+MF00166:Isomerase,85,Metabolism
+MF00167:Epimerase/racemase,19,Metabolism
+MF00168:Mutase,12,Metabolism
+MF00169:Other isomerase,43,Metabolism
+MF00170:Ligase,264,Metabolism
+MF00173:Defense/immunity protein,205,Immune
+MF00174:Complement component,9,Immune
+MF00175:Major histocompatibility complex antigen,27,Immune
+MF00176:Antibacterial response protein,18,Immune
+MF00177:Other defense and immunity protein,49,Immune
+MF00178:Extracellular matrix,233,Extracellular Matrix
+MF00179:Extracellular matrix structural protein,33,Extracellular Matrix
+MF00180:Extracellular matrix glycoprotein,66,Extracellular Matrix
+MF00181:Other extracellular matrix,33,Extracellular Matrix
+MF00184:Tight junction,29,Extracellular Matrix
+MF00188:Select calcium binding protein,167,Signaling
+MF00189:Other select calcium binding proteins,27,Signaling
+MF00190:Viral protein,2,Immune
+MF00191:Viral coat protein,2,Immune
+MF00192:Other viral protein,1,Immune
+MF00197:Miscellaneous function,534,Miscellaneous
+MF00198:Structural protein,183,Development
+MF00199:Storage protein,3,Development
+MF00200:Myelin protein,10,Development
+MF00201:Surfactant,5,Development
+MF00202:Other miscellaneous function protein,256,Miscellaneous
+MF00209:Hsp 70 family chaperone,6,Protein Binding
+MF00210:Hsp 90 family chaperone,3,Protein Binding
+MF00211:Kinase activator,30,Signaling
+MF00212:Other G-protein modulator,89,Signaling
+MF00213:Non-receptor serine/threonine protein kinase,155,Signaling
+MF00214:Non-receptor tyrosine protein kinase,28,Signaling
+MF00215:Cysteine protease,99,Protease
+MF00216:Serine protease,98,Protease
+MF00217:Other proteases,9,Protease
+MF00218:Calmodulin related protein,95,Signaling
+MF00219:Annexin,28,Extracellular Matrix
+MF00222:Zinc finger transcription factor,726,Transcription
+MF00224:KRAB box transcription factor,491,Transcription
+MF00225:Other zinc finger transcription factor,75,Transcription
+MF00226:HMG box transcription factor,5,Transcription
+MF00227:Basic helix-loop-helix transcription factor,63,Transcription
+MF00228:Basal transcription factor,22,Transcription
+MF00229:Extracellular matrix linker protein,20,Extracellular Matrix
+MF00230:Actin binding motor protein,46,Cytoskeleton
+MF00231:Microtubule binding motor protein,44,Cytoskeleton
+MF00232:Interleukin,34,Cytokine
+MF00233:Interferon,19,Cytokine
+MF00234:Other cytokine,8,Cytokine
+MF00236:Exoribonuclease,14,Translation
+MF00237:Endoribonuclease,25,Translation
+MF00238:Phosphatase activator,1,Signaling
+MF00239:Phosphatase inhibitor,7,Signaling
+MF00240:Immunoglobulin,4,Immune
+MF00241:Protein kinase receptor,64,Receptor
+MF00242:RNA helicase,64,Translation
+MF00243:DNA helicase,47,DNA Replication
+MF00244:Cyclic nucleotide-gated ion channel,4,Transport
+MF00246:Other cytokine receptor,9,Receptor
+MF00247:Membrane-bound signaling molecule,60,Signaling
+MF00249:Cysteine protease inhibitor,5,Protease
+MF00250:Serine protease inhibitor,11,Protease
+MF00251:Other protease inhibitor,3,Protease
+MF00254:Actin and actin related protein,13,Cytoskeleton
+MF00255:Non-motor microtubule binding protein,52,Cytoskeleton
+MF00256:Intermediate filament,119,Cytoskeleton
+MF00257:CREB transcription factor,11,Transcription
+MF00258:CAM family adhesion molecule,50,Extracellular Matrix
+MF00259:Cadherin,91,Extracellular Matrix
+MF00260:Other cell adhesion molecule,82,Extracellular Matrix
+MF00261:Actin binding cytoskeletal protein,212,Cytoskeleton
+MF00262:Non-motor actin binding protein,79,Cytoskeleton
+MF00263:Other actin family cytoskeletal protein,14,Cytoskeleton
+MF00264:Microtubule family cytoskeletal protein,151,Cytoskeleton
+MF00265:Tubulin,24,Cytoskeleton
+MF00266:Other microtubule family cytoskeletal protein,4,Cytoskeleton
+MF00267:Membrane traffic protein,202,Transport
+MF00268:Vesicle coat protein,17,Immune
+MF00269:SNARE protein,32,Transport
+MF00270:Membrane traffic regulatory protein,76,Transport
+MF00271:Other membrane traffic protein,44,Transport
+MF00272:Intermediate filament binding protein,4,Cytoskeleton
+MF00273:Hydrogen transporter,40,Transport
+MF00275:Transcription cofactor,95,Transcription
+MF00276:Cell junction protein,64,Cell Junction
+MF00277:Other cell junction protein,23,Cell Junction
+MF00278:TGF-beta receptor,2,Receptor
+MF00279:Tumor necrosis factor receptor,13,Receptor
+MF00281:Tumor necrosis factor family member,6,Apoptosis
+MF00282:Aspartic protease,14,Protease
+MF00283:Ubiquitin-protein ligase,136,Protease
+MF00284:Other ligase,89,Protease
+MF00286:Other DNA-binding protein,184,Transcription
+MF00288:Amino acid transporter,27,Transporter
+MF00289:ATP synthase,18,Metabolism
+MF00290:Other enzyme regulator,38,Metabolism
+MF00291:Other enzyme activator,8,Metabolism
+MF00292:Other enzyme inhibitor,8,Metabolism
+MF00293:Transmembrane receptor regulatory/adaptor protein,28,Receptor
+MF00294:Double-stranded DNA binding protein,18,Transcription

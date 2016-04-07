@@ -1,10 +1,9 @@
-## Daniel Beck
-## Created 9/15/2015
-## Modified
+## Created 9/15/2015 by Daniel Beck
+## Last modified 4/6/2016
 
-## This code is intended to produce all publication figures and tables. 
-## It repeats many of the report figures. This file should be modified for each project 
-## so that includes the exact figures produced for the final manuscript.
+## This code is intended to produce all publication figures and tables. It repeats many 
+## of the report figures. This file should be modified for each project so that includes 
+## the exact figures produced for the final manuscript.
 
 
 #####################
@@ -35,20 +34,28 @@ for (i in 1:length(resultsFiles)) {
      resultsList[[i]] <- local({load(paste(resultsFiles[[i]], 
                                            "methLists.RData", 
                                            sep="")); environment()})
-     pvc[i]<-which(dataList[[i]]$pValues==selectedPvalue[i])
-     if (length(resultsList[[i]]$annMat)>0) annList[[i]]<-resultsList[[i]]$annMat[[pvc[i]]]
-     if (length(resultsList[[i]]$methList2p)>0) {
-          dmrList[[i]]<-resultsList[[i]]$methList2p[[pvc[i]]]
-          dmrList[[i]]<-cbind(dmrName = paste("DMR",
-                                              dmrList[[1]]$chr, ":",
-                                              dmrList[[1]]$start, sep=""), dmrList[[i]])
+     pvc[i] <- which(dataList[[i]]$pValues == selectedPvalue[i])
+     if (length(resultsList[[i]]$annMat) > 0) annList[[i]] <- resultsList[[i]]$annMat[[pvc[i]]]
+     if (length(resultsList[[i]]$methList2p) > 0) {
+          dmrList[[i]] <- resultsList[[i]]$methList2p[[pvc[i]]]
+          dmrList[[i]] <- cbind(dmrName = paste("DMR",
+                                                dmrList[[1]]$chr, ":",
+                                                dmrList[[1]]$start, sep = ""), dmrList[[i]])
      }
-     if (length(resultsList[[i]]$methList)>0) methList[[i]]<-resultsList[[i]]$methList[[pvc[i]]]
-     annList2p[[i]] <- annList[[i]][as.logical(match(as.character(annList[[i]]$ID), as.character(dmrList[[i]]$ID), nomatch=0)),]
-     annList2p[[i]]$description <- gsub(pattern = ",", replacement = " -", annList2p[[i]]$description)
-     namesList <- paste("DMR", dmrList[[1]]$chr, ":", dmrList[[1]]$start, sep="")
-     annList2p[[i]] <- cbind(dmrName=namesList[match(annList2p[[i]]$ID, dmrList[[i]]$ID)], annList2p[[i]])
-     library(dataList[[i]]$bsgenomePackageName, character.only=T, lib.loc=dataList[[i]]$genomeDirectory)
+     if (length(resultsList[[i]]$methList)>0) {
+       methList[[i]] <- resultsList[[i]]$methList[[pvc[i]]]
+     }
+     annList2p[[i]] <- annList[[i]][as.logical(match(as.character(annList[[i]]$ID), 
+                                                     as.character(dmrList[[i]]$ID), 
+                                                     nomatch=0)), ]
+     annList2p[[i]]$description <- gsub(pattern = ",", 
+                                        replacement = " -", 
+                                        annList2p[[i]]$description)
+     namesList <- paste("DMR", dmrList[[1]]$chr, ":", dmrList[[1]]$start, sep = "")
+     annList2p[[i]] <- cbind(dmrName = namesList[match(annList2p[[i]]$ID, 
+                                                       dmrList[[i]]$ID)], annList2p[[i]])
+     library(dataList[[i]]$bsgenomePackageName, character.only = T, 
+             lib.loc=dataList[[i]]$genomeDirectory)
 }
 
 ## Load necessary libraries
@@ -81,8 +88,8 @@ dev.off()
 pdf(paste("chromosomePlot_2p_", analysisNames[1], "_", selectedPvalue[1], ".pdf", sep = ""))
 smethList <- excludeChr(dmrList[[1]], exclude = "")
 clusterObject <- slidingWindowCluster(formatForCluster(smethList), 
-                                      windowLength=2000000, 
-                                      incrementLength=50000)
+                                      windowLength = 2000000, 
+                                      incrementLength = 50000)
 colnames(clusterObject) <- c("chr", "start", "stop", "minP")
 chrLengths <- seqlengths(eval(parse(text = dataList[[1]]$referenceName)))
 plotChromosomes(siteTable = smethList, chrLengths = chrLengths, 

@@ -218,7 +218,6 @@ if(!is.null(methList2p[[pvc]]$cpgNum)){
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE, fig.height = 7}
 a <- NULL
-cVar=F
 if (cVar) {
   s1cols <- match(paste(sbamFileName[comparison[[an]]$mset1], ".rpkm", sep = ""), 
                   colnames(methResults))
@@ -234,9 +233,12 @@ if (cVar) {
   SWsdN <- apply(sigWin[, s2cols], 1, sd)
   SWcvH <- SWsdH / sigWin[, "MSets1.rpkm.mean"]
   SWcvN <- SWsdN / sigWin[, "MSets2.rpkm.mean"]
+ 
   colorVector <- colorRampPalette(c("red", "black", "blue"))(100)
-  SWcol <- colorVector[as.integer(sigWin$edgeR.p.value * median(1 / sigWin$edgeR.p.value))]
-  
+  evenDist <- ((sigWin$edgeR.p.value-min(sigWin$edgeR.p.value))/(max(sigWin$edgeR.p.value)-min(sigWin$edgeR.p.value)))*100
+  evenDist <- sapply(floor(evenDist)+1, function(i) min(i, 100))
+  SWcol <- colorVector[evenDist]
+ 
   dH <- density(cvH, na.rm = T)
   dN <- density(cvN, na.rm = T)
   SWdH <- density(SWcvH, na.rm = T)
@@ -281,6 +283,7 @@ if (cVar) {
   a <- paste("Figure 12. This figure shows the CV for RPKM corrected coverage values for ", 
              s1n, " samples vs. ", s2n, " samples. Points are colored by p-value, with blue 
              having the highest p-value, red having the lowest, and black being intermediate. 
+             These colors are relative and scaled evenly between the highest and lowest p-values.
              Only genomic windows with a p-value less than ", reportPvalue, " are shown here. 
              Histograms on the x and y axis show the CV distribution of genomic windows in the ", 
              s1n, " and ",s2n, " samples respectively.", sep = "")
@@ -290,37 +293,16 @@ if (cVar) {
 
 `r a`
 
-```{r, echo = FALSE, message = FALSE, warning = FALSE, fig.height = 8}
 
-sn<-paste(seqFiles$sampleName, seqFiles$ctFlag, sep="_")
-par(mfcol=c(3,2))
-for (i in 1:length(satList)) {
-  MEDIPS.plotSaturation(satList[[i]], main=sn[i])
-}
-
-```
-
-**Figure 13.** This figure shows the saturation plot for each sample. This figure can theoretically be used for quality control.
-
-
-
-```{r, echo = FALSE, message = FALSE, warning = FALSE, fig.height = 4.5}
-
-a<-sapply(enrichList, function(i) i$enrichment.score.relH)
-names(a)<-sn
-barplot(a)
-
-```
-
-**Figure 14.** This figure shows the CpG enrichment ratio (the frequency of CpGs in the samples / the frequency of CpGs in the reference genome).
 
 ************
 
 ```{r, echo = FALSE, results = "asis", message = FALSE, warning = FALSE}
 
-a<-as.data.frame(corMatrix)
-colnames(a)<-sn
-row.names(a)<-sn
+a <- as.data.frame(corMatrix)
+colnames(a) <- seqFiles$sampleName[match(colnames(corMatrix), sbamFileName)]
+row.names(a) <- seqFiles$sampleName[match(row.names(corMatrix), sbamFileName)]
+a <- a[which(match(row.names(a), sn, nomatch=0)>0), which(match(colnames(a), sn, nomatch=0)>0)]
 pandoc.table(a, split.tables=110, style="rmarkdown", caption="This table shows the pairwise Pearson correlation coefficient between sample coverage profiles.")
 
 ```
@@ -329,15 +311,16 @@ pandoc.table(a, split.tables=110, style="rmarkdown", caption="This table shows t
 ```{r, echo = FALSE, message = FALSE, warning = FALSE, fig.height = 8}
 
 par(mfcol=c(3,2))
-for (i in 1:length(coverList)) {
-  histMax(coverList[[i]]$cov.res, max=15, 
-          xlab=paste("Coverage\n", format(coverList[[i]]$numberReadsWO / coverList[[i]]$numberReads*100, digits=3), "% of reads do not cover a CpG", sep=""), 
+subCoverList <- coverList[which(match(seqFiles$sampleName, sn, nomatch=0)>0)]
+for (i in 1:length(subCoverList)) {
+  histMax(coverList[[i]]$cov.res, max=15,
+          xlab=paste("Coverage\n", format(subCoverList[[i]]$numberReadsWO / subCoverList[[i]]$numberReads*100, digits=3), "% of reads do not cover a CpG", sep=""),
           ylab = "Number of CpGs",
           main = sn[i])
 }
 
 ```
 
-**Figure 15.** This figure shows the distribution of CpG coverage across the genome for each sample.
+**Figure 13.** This figure shows the distribution of CpG coverage across the genome for each sample.
 
 
