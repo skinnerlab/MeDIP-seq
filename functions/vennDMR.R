@@ -159,13 +159,11 @@ vennDMR <- function(dmr.list, group.names = NULL, ...) {
       n23 <- max(nrow(pairs[[3]]), 0) / 2
       n123 <- 0
     }
-    area1 <- n1 + n12 + n13 + n123
-    area2 <- n2 + n12 + n23 + n123
-    area3 <- n3 + n13 + n23 + n123
+
     plot.new()
-    draw.triple.venn(area1 = area1, area2 = area2, area3 = area3, n12 = n12 + n123, 
-                     n13 = n13 + n123, n23 = n23 + n123, n123 = n123, category = group.names, 
-                     col = rep("black", 3), fill = c("skyblue", "pink1", "orange"), ...)
+    draw.triple.venn.dbmod(n1 = n1, n2 = n2, n3 = n3, n12 = n12, n13 = n13, n23 = n23, 
+                           n123 = n123, category = group.names, col = rep("black", 3), 
+                           fill = c("skyblue", "pink1", "orange"), ...)
   }
   if (length(dmr.list) == 4) {
     pM <- do.call(rbind, pairs)
@@ -213,20 +211,15 @@ vennDMR <- function(dmr.list, group.names = NULL, ...) {
       n234 <- round(max(nrow(triples[[4]]), 0) / 3, digits = 1)
       n1234 <- 0
     }
-    area1 <- n1 + n12 + n13 + n14 + n123 + n124 + n134 + n1234
-    area2 <- n2 + n12 + n23 + n24 + n123 + n124 + n234 + n1234
-    area3 <- n3 + n13 + n23 + n34 + n123 + n134 + n234 + n1234 
-    area4 <- n4 + n14 + n24 + n34 + n124 + n134 + n234 + n1234
+
     plot.new()
-    draw.quad.venn(area1 = area1, area2 = area2, area3 = area3, area4 = area4, 
-                   n12 = n12 + n123 + n124 + n1234, n13 = n13 + n123 + n134 + n1234, 
-                   n14 = n14 + n124 + n134 + n1234, n23 = n23 + n123 + n234 + n1234, 
-                   n24 = n24 + n124 + n234 + n1234, n34 = n34 + n134 + n234 + n1234, 
-                   n123 = n123 + n1234, n124 = n124 + n1234, n134 = n134 + n1234, 
-                   n234 = n234 + n1234, n1234 = n1234, category = group.names, 
-                   col = rep("black", 4), fill = c("skyblue", "pink1", "mediumorchid", "orange"),
-                   ...)
+    draw.quad.venn.dbmod(n1 = n1, n2 = n2, n3 = n3, n4 = n4, n12 = n12, n13 = n13, n14 = n14, 
+                         n23 = n23, n24 = n24, n34 = n34, n123 = n123, n124 = n124, n134 = n134, 
+                         n234 = n234, n1234 = n1234, category = group.names, 
+                         col = rep("black", 4), 
+                         fill = c("skyblue", "pink1", "mediumorchid", "orange"), ...)
   }
+  
   if (length(dmr.list) == 5) {
     pM <- do.call(rbind, pairs)
     if (ncol(pM) > 1) {
@@ -246,27 +239,27 @@ vennDMR <- function(dmr.list, group.names = NULL, ...) {
     tM <- do.call(rbind, triples)
     if (ncol(tM) > 1) {
       tM <- tM[which(!is.na(tM[ ,1])), ]  # Get rid of NA rows
-      n12 <- nrow(removeDuplicates(pairs[[1]], tM)) / 2
-      n13 <- nrow(removeDuplicates(pairs[[2]], tM)) / 2
-      n14 <- nrow(removeDuplicates(pairs[[3]], tM)) / 2
-      n15 <- nrow(removeDuplicates(pairs[[4]], tM)) / 2
-      n23 <- nrow(removeDuplicates(pairs[[5]], tM)) / 2
-      n24 <- nrow(removeDuplicates(pairs[[6]], tM)) / 2
-      n25 <- nrow(removeDuplicates(pairs[[7]], tM)) / 2
-      n34 <- nrow(removeDuplicates(pairs[[8]], tM)) / 2
-      n35 <- nrow(removeDuplicates(pairs[[9]], tM)) / 2
-      n45 <- nrow(removeDuplicates(pairs[[10]], tM)) / 2
+      n12 <- round(nrow(removeDuplicates(pairs[[1]], tM)) / 2, digits = 1)
+      n13 <- round(nrow(removeDuplicates(pairs[[2]], tM)) / 2, digits = 1)
+      n14 <- round(nrow(removeDuplicates(pairs[[3]], tM)) / 2, digits = 1)
+      n15 <- round(nrow(removeDuplicates(pairs[[4]], tM)) / 2, digits = 1)
+      n23 <- round(nrow(removeDuplicates(pairs[[5]], tM)) / 2, digits = 1)
+      n24 <- round(nrow(removeDuplicates(pairs[[6]], tM)) / 2, digits = 1)
+      n25 <- round(nrow(removeDuplicates(pairs[[7]], tM)) / 2, digits = 1)
+      n34 <- round(nrow(removeDuplicates(pairs[[8]], tM)) / 2, digits = 1)
+      n35 <- round(nrow(removeDuplicates(pairs[[9]], tM)) / 2, digits = 1)
+      n45 <- round(nrow(removeDuplicates(pairs[[10]], tM)) / 2, digits = 1)
     } else {
-      n12 <- max(nrow(pairs[[1]]), 0) / 2
-      n13 <- max(nrow(pairs[[2]]), 0) / 2
-      n14 <- max(nrow(pairs[[3]]), 0) / 2
-      n15 <- max(nrow(pairs[[4]]), 0) / 2
-      n23 <- max(nrow(pairs[[5]]), 0) / 2
-      n24 <- max(nrow(pairs[[6]]), 0) / 2
-      n25 <- max(nrow(pairs[[7]]), 0) / 2
-      n34 <- max(nrow(pairs[[8]]), 0) / 2
-      n35 <- max(nrow(pairs[[9]]), 0) / 2
-      n45 <- max(nrow(pairs[[10]]), 0) / 2
+      n12 <- round(max(nrow(pairs[[1]]), 0) / 2, digits = 1)
+      n13 <- round(max(nrow(pairs[[2]]), 0) / 2, digits = 1)
+      n14 <- round(max(nrow(pairs[[3]]), 0) / 2, digits = 1)
+      n15 <- round(max(nrow(pairs[[4]]), 0) / 2, digits = 1)
+      n23 <- round(max(nrow(pairs[[5]]), 0) / 2, digits = 1)
+      n24 <- round(max(nrow(pairs[[6]]), 0) / 2, digits = 1)
+      n25 <- round(max(nrow(pairs[[7]]), 0) / 2, digits = 1)
+      n34 <- round(max(nrow(pairs[[8]]), 0) / 2, digits = 1)
+      n35 <- round(max(nrow(pairs[[9]]), 0) / 2, digits = 1)
+      n45 <- round(max(nrow(pairs[[10]]), 0) / 2, digits = 1)
       
     }
     qM <- do.call(rbind, quads)
@@ -313,41 +306,13 @@ vennDMR <- function(dmr.list, group.names = NULL, ...) {
       n12345 <- 0
     }
     
-    area1 <- n1 + n12 + n13 + n14 + n15 + n123 + n124 + n125 + 
-             n134 + n135 + n145 + n1234 + n1235 + n1245 + n1345 + n12345
-    area2 <- n2 + n12 + n23 + n24 + n25 + n123 + n124 + n125 + 
-             n234 + n235 + n245 + n1234 + n1235 + n1245 + n2345 + n12345
-    area3 <- n3 + n13 + n23 + n34 + n35 + n123 + n134 + n135 + 
-             n234 + n235 + n345 + n1234 + n1235 + n1345 + n2345 + n12345
-    area4 <- n4 + n14 + n24 + n34 + n45 + n124 + n134 + n145 + 
-             n234 + n245 + n345 + n1234 + n1245 + n1345 + n2345 + n12345
-    area5 <- n5 + n15 + n25 + n35 + n45 + n125 + n135 + n145 +
-             n235 + n245 + n345 + n1235 + n1245 + n1345 + n2345 + n12345
-    
     plot.new()
-    draw.quintuple.venn(area1 = area1, area2 = area2, area3 = area3, area4 = area4, area5 = area5,
-                        n12 = n12 + n123 + n124 + n125 + n1234 + n1235 + n1245 + n12345, 
-                        n13 = n13 + n123 + n134 + n135 + n1234 + n1235 + n1345 + n12345,
-                        n14 = n14 + n124 + n134 + n145 + n1234 + n1245 + n1345 + n12345, 
-                        n15 = n15 + n125 + n135 + n145 + n1235 + n1245 + n1345 + n12345, 
-                        n23 = n23 + n123 + n234 + n235 + n1234 + n1235 + n2345 + n12345,
-                        n24 = n24 + n124 + n234 + n245 + n1234 + n1245 + n2345 + n12345, 
-                        n25 = n25 + n125 + n135 + n145 + n1235 + n1245 + n2345 + n12345, 
-                        n34 = n34 + n134 + n234 + n345 + n1234 + n1345 + n2345 + n12345, 
-                        n35 = n35 + n135 + n235 + n345 + n1235 + n1345 + n2345 + n12345, 
-                        n45 = n45 + n145 + n245 + n345 + n1245 + n1345 + n2345 + n12345, 
-                        n123 = n123 + n1234 + n1235 + n12345, 
-                        n124 = n124 + n1234 + n1245 + n12345, 
-                        n125 = n125 + n1235 + n1245 + n12345, 
-                        n134 = n134 + n1234 + n1345 + n12345,  
-                        n135 = n135 + n1235 + n1345 + n12345, 
-                        n145 = n145 + n1245 + n1345 + n12345,
-                        n234 = n234 + n1234 + n2345 + n12345, 
-                        n235 = n235 + n1235 + n2345 + n12345,
-                        n245 = n245 + n1245 + n2345 + n12345, 
-                        n345 = n345 + n1345 + n2345 + n12345,
-                        n1234 = n1234 + n12345, n1235 = n1235 + n12345, n1245 = n1245 + n12345, 
-                        n1345 = n1345 + n12345, n2345 = n2345 + n12345, n12345 = n12345, 
+    draw.quintuple.venn.dbmod(n1 = n1, n2 = n2, n3 = n3, n4 = n4, n5 = n5, n12 = n12, n13 = n13, 
+                        n14 = n14, n15 = n15, n23 = n23, n24 = n24, n25 = n25, n34 = n34,
+                        n35 = n35, n45 = n45, n123 = n123, n124 = n124, n125 = n125,
+                        n134 = n134, n135 = n135, n145 = n145, n234 = n234, n235 = n235,
+                        n245 = n245, n345 = n345, n1234 = n1234, n1235 = n1235, n1245 = n1245, 
+                        n1345 = n1345, n2345 = n2345, n12345 = n12345, 
                         category = group.names,  
                         fill = c("skyblue", "pink1", "mediumorchid", "orange", "green"), ...)
   }

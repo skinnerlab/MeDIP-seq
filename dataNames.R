@@ -233,9 +233,12 @@ comparisonNames <-
     "pair_3-4", "pair_3-5", "pair_3-6"
   )
 
-## This vector should be a subset of comparisonNames and will be used to perform an APO 
-## analysis using the identifyApoDmr.R script.
-pair.analysis.names <- c("pair_1-4", "pair_2-5", "pair_3-6")
+## These objects hold information for APO (intersection) analyses.
+# apo.names is the equilivant of comparisonNames above
+apo.names <- c("apoF1")
+# This list holds the pair analyses names and should be a subset of the comparisonNames.
+apo.pair.analysis.names <- list()
+apo.pair.analysis.names[[1]] <- c("pairF1_1-4", "pairF1_2-5", "pairF1_3-6")
 
 # Which samples are being compared. The pairs flag was included to allow for a pairwise
 # type analysis. It isn't currently functional, but some code requires it.

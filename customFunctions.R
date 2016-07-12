@@ -55,17 +55,11 @@ source("./functions/pairOverlap.R")
 source("./functions/bpToDmr.R")
 ## Removes lines in matrix 1 that are also in matrix 2
 source("./functions/removeDuplicates.R")
-## Plots the read depth in a given region for a list of BAM files
-source("./functions/plotDepth.R")
-## Takes a DNAStringSet and a set of cigar strings. Returns the aligned sequences.
-source("./functions/alignSeqs.R")
-## Helper function for alignSeqs. Adds gaps to the sequence.
-source("./functions/getGSeq.R")
-## Wrapper for plotDepth that can be run from MEDIP pipeline
-source("./functions/plotDepthFromPipeline.R")
-## Extract alignment from BAM file
-source("./functions/alignBam.R")
-
+## These functions modify the VennDiagram package functions to allow easier integration
+## with the medipPipeline code.
+source("./functions/draw.quintuple.venn.dbmod.R")
+source("./functions/draw.quad.venn.dbmod.R")
+source("./functions/draw.triple.venn.dbmod.R")
 
 ## These are no longer used. I've kept them in this file for documentation and on the off 
 ## chance they become useful.
