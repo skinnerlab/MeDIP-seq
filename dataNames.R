@@ -1,5 +1,5 @@
 ## Created 6/29/2015 by Daniel Beck
-## Last modified 4/5/2016
+## Last modified 5/31/2016
 
 ## This is the configuration script for the MeDIP-seq analysis pipeline. It holds
 ## most analysis parameters and options. It also holds sample/filename information
@@ -26,7 +26,7 @@ dataDirectory <- paste(projectDirectory, "data/", sep="")
 codeDirectory <- paste(projectDirectory, "code/", sep="")
 # Results directory (folder for all results)
 resultsDirectory <- paste(projectDirectory, "results/", sep="")
-# Genome direcotry (holds reference genome and BSgenome package)
+# Genome directory (holds reference genome and BSgenome package)
 genomeDirectory <- paste(dataDirectory, "genome/", sep="")
 
 
@@ -54,6 +54,8 @@ buildBSgenome <- TRUE
 mapReads <- TRUE
 # Convert SAM files to sorted BAM files?
 convertToBam <- TRUE
+# Generate index files for BAM files?
+generateIndex <- TRUE
 # Download annotation files?
 downloadAnnotation <- TRUE
 
@@ -230,6 +232,10 @@ comparisonNames <-
     "pair_2-4", "pair_2-5", "pair_2-6",
     "pair_3-4", "pair_3-5", "pair_3-6"
   )
+
+## This vector should be a subset of comparisonNames and will be used to perform an APO 
+## analysis using the identifyApoDmr.R script.
+pair.analysis.names <- c("pair_1-4", "pair_2-5", "pair_3-6")
 
 # Which samples are being compared. The pairs flag was included to allow for a pairwise
 # type analysis. It isn't currently functional, but some code requires it.

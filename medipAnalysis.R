@@ -11,7 +11,6 @@ library(MEDIPS)
 source("dataNames.R")
 source("customFunctions.R")
 library(bsgenomePackageName, character.only = T, lib.loc = genomeDirectory)
-library(biomaRt)
 
 
 #############################

@@ -55,16 +55,43 @@ if (generateFastQC) {
 for (i in 1:length(seqFiles$sampleName)) {
   if (cleanReads) {
     # run Trimmomatic
-    system(paste("java -jar /apps/Trimmomatic-0.36/trimmomatic-0.36.jar PE -threads " , 
-                 numThreads, " -phred33 ", dataDirectory, seqFiles$p1FileName[i], " ", 
-                 dataDirectory, seqFiles$p2FileName[i], " ", dataDirectory, 
-                 cleanFileNames$cp1FileName[i], " ", dataDirectory, cleanFileNames$cs1FileName[i],
-                 " ", dataDirectory, cleanFileNames$cp2FileName[i], " ", dataDirectory, 
-                 cleanFileNames$cs2FileName[i],
-                 " ILLUMINACLIP:/apps/Trimmomatic-0.36/adapters/TruSeq3-PE-2.fa:2:30:11:1:true ",
+    system(paste("java -jar /apps/Trimmomatic-0.36/trimmomatic-0.36.jar ", 
+                 "PE ", "-threads ", numThreads, " -phred33 ", 
+                 dataDirectory, seqFiles$p1FileName[i], " ", 
+                 dataDirectory, seqFiles$p2FileName[i], " ", 
+                 dataDirectory, cleanFileNames$cp1FileName[i], " ", 
+                 dataDirectory, cleanFileNames$cs1FileName[i], " ", 
+                 dataDirectory, cleanFileNames$cp2FileName[i], " ", 
+                 dataDirectory, cleanFileNames$cs2FileName[i], " ",
+                 "ILLUMINACLIP:/apps/Trimmomatic-0.36/adapters/TruSeq3-PE-2.fa:2:30:11:1:true ",
                  "TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:20", sep=""))
   }
 }
+
+## The command above is hard coded for several Trimmomatic parameters and options. These are
+## summarized below. The specific paramter values are copied directly from the Arizon lab
+## procedures.
+
+# java -jar trimmomatic-0.36.jar              -- Trimmomatic JAR file
+#  PE                                         -- Paired end input files
+#  -threads                                   -- Number of computation threads to use
+#  -phred33                                   -- Specifies the base quality encoding
+#  Sample_R1.fq.gz                            -- Sample R1 file name (input)
+#  Sample_R2.fq.gz                            -- Sample R2 file name (input)
+#  pair_Sample_R1.fq.gz                       -- Cleaned R1 pairs file name (output)
+#  sngl_Sample_R1.fq.gz                       -- Cleaned R1 singles file name (output)
+#  pair_Sample_R2.fq.gz                       -- Cleaned R2 pairs file name (output)
+#  sngl_Sample_R2.fq.gz                       -- Cleaned R2 singles file name (output)
+#  ILLUMINACLIP                               -- Remove adapters
+#      :TruSeq3-PE-2.fa                       -- Fasta file with adapters
+#      :2                                     -- Maximum seed mismatches
+#      :30                                    -- Palindrome clip threshold
+#      :11                                    -- Simple clip threshold
+#      :1                                     -- Minimum adapter length
+#      :true                                  -- Keep both reads
+#  TRAILING:3                                 -- Minimum quality required to keep base
+#  SLIDINGWINDOW:4:15                         -- windowSize:requiredQuality
+#  MINLEN:20                                  -- Minimum length of reads to keep
 
 
 ###############
@@ -128,6 +155,12 @@ for (i in 1:length(seqFiles$sampleName)) {
                  " ", dataDirectory, bamFileName[i], 
                  " ", dataDirectory, paste("s",seqFiles$sampleName[i], sep=""), 
                  sep=""))
+  }
+
+  if (generateIndex) {
+    system(paste("samtools index ", 
+                 dataDirectory, sbamFileName[i], " ", 
+                 dataDirectory, paste(sbamFileName[i], ".bai", sep=""), sep=""))
   }
 }
 

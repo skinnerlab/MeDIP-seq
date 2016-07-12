@@ -5,7 +5,9 @@
 ## This function extracts mapping information from the prepareData.R log file. It is used for 
 ## the report generation.
 
-mapExtract <- function() {
+mapExtract <- function(cleaned = TRUE) {
+  pctLine <- 15
+  if (cleaned) pctLine <- 19
   prepareData <- readLines("prepareData.Rout")
   sn <- c(seqFiles$sampleName[comparison[[an]]$mset1], 
           seqFiles$sampleName[comparison[[an]]$mset2])
@@ -13,7 +15,7 @@ mapExtract <- function() {
     grep(pattern = paste("Running Bowtie2 on ", i, '\"', sep = ""), x = prepareData)
     })
   
-  pct <- sapply(strsplit(prepareData[sampleIndex + 15], split = " "), function(i) i[1])
+  pct <- sapply(strsplit(prepareData[sampleIndex + pctLine], split = " "), function(i) i[1])
   rn <- sapply(strsplit(prepareData[sampleIndex + 1], split = " "), function(i) i[1])
   outTable <- as.data.frame(rbind(rn, pct))
   colnames(outTable) <- sn

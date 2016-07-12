@@ -1,5 +1,5 @@
 ## Created 5/28/2015 by Daniel Beck
-## Last modified 4/6/2016
+## Last modified 4/7/2016
 
 ## This script acts as an index file for all necessary functions. This is not a standard
 ## way of doing things, however. It may be best to create an R package in the future that
@@ -11,6 +11,10 @@ source("./functions/addToMergedResults.R")
 source("./functions/addAnnotationGFF.R")
 ## Adds annotation to DMR table using remote Biomart database
 source("./functions/addAnnotationBiomart.R")
+## Adds annotation to DMR table using BLAST
+source("./functions/addAnnotationBlast.R")
+## Extracts reference sequence corresponding to DMR
+source("./functions/dmr2seq.R")
 ## Finds a custom category for a gene using homologs
 source("./functions/identifyCategory.R")
 ## Matches gene to annotationTable using homologs
@@ -40,7 +44,7 @@ source("./functions/countDMR.R")
 ## Generates DMR length histogram
 source("./functions/plotDMRlength.R")
 ## Generates a histogram with a maximum value
-source("./functions/histMax")
+source("./functions/histMax.R")
 ## Generates a Venn diagram from a list of DMR tables
 source("./functions/vennDMR.R")
 ## Returns list of base pairs that overlap between all input DMR tables
@@ -51,6 +55,16 @@ source("./functions/pairOverlap.R")
 source("./functions/bpToDmr.R")
 ## Removes lines in matrix 1 that are also in matrix 2
 source("./functions/removeDuplicates.R")
+## Plots the read depth in a given region for a list of BAM files
+source("./functions/plotDepth.R")
+## Takes a DNAStringSet and a set of cigar strings. Returns the aligned sequences.
+source("./functions/alignSeqs.R")
+## Helper function for alignSeqs. Adds gaps to the sequence.
+source("./functions/getGSeq.R")
+## Wrapper for plotDepth that can be run from MEDIP pipeline
+source("./functions/plotDepthFromPipeline.R")
+## Extract alignment from BAM file
+source("./functions/alignBam.R")
 
 
 ## These are no longer used. I've kept them in this file for documentation and on the off 

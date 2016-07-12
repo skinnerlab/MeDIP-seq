@@ -39,8 +39,8 @@ for (i in 1:length(resultsFiles)) {
      if (length(resultsList[[i]]$methList2p) > 0) {
           dmrList[[i]] <- resultsList[[i]]$methList2p[[pvc[i]]]
           dmrList[[i]] <- cbind(dmrName = paste("DMR",
-                                                dmrList[[1]]$chr, ":",
-                                                dmrList[[1]]$start, sep = ""), dmrList[[i]])
+                                                dmrList[[i]]$chr, ":",
+                                                dmrList[[i]]$start, sep = ""), dmrList[[i]])
      }
      if (length(resultsList[[i]]$methList)>0) {
        methList[[i]] <- resultsList[[i]]$methList[[pvc[i]]]
