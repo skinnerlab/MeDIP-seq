@@ -75,8 +75,9 @@ for (i in 1:length(MTCmethListAPO)) {
 
 ```
 
-# MeDIP analysis summary for the `r projectName` project
+# Intersection MeDIP analysis summary for the `r projectName` project
 Report generated `r format(Sys.Date(), format = "%B %d %Y")`
+
 Arbitrary pair overlap (APO) `r paste(apo.pair.analysis.names[[an]], collapse = ", ")`
 
 ## Sample comparison
@@ -85,9 +86,6 @@ The samples `r paste(seqFiles$sampleName[sampleDef$mset1], collapse = ", ")` wer
 ## Raw data cleaning and mapping
 `r ifelse(cleanReads, "The raw data was cleaned and filtered to remove adapters and low-quality bases using Trimmomatic. The following table shows the differences in read numbers in the raw and cleaned files.", ifelse(useCleanReads, "The raw data was cleaned and filtered. The exact methods are not specified. The following table shows the differences in read numbers in the raw and cleaned files.", "No cleaning or filtering of the raw data is specified."))`
 
-
-## Raw data cleaning and mapping
-`r ifelse(cleanReads, "The raw data was cleaned and filtered to remove adapters and low-quality bases using Trimmomatic. The following table shows the differences in read numbers in the raw and cleaned files.", ifelse(useCleanReads, "The raw data was cleaned and filtered. The exact methods are not specified. The following table shows the differences in read numbers in the raw and cleaned files.", "No cleaning or filtering of the raw data is specified."))`
 
 ```{r, echo = FALSE, results = "asis", message = FALSE, warning = FALSE}
 sn <- c(seqFiles$sampleName[sampleDef$mset1], seqFiles$sampleName[sampleDef$mset2])
@@ -303,7 +301,7 @@ if(!is.null(methList2pAPO[[pvc]]$cpgNum)){
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE, fig.height = 4.5}
 
-vennDMR(dmr.list = dmrTable.list, group.names = apo.pair.analysis.names)
+vennDMR(dmr.list = dmrTable.list, group.names = apo.pair.analysis.names[[an]])
 
 
 ```
@@ -312,7 +310,7 @@ vennDMR(dmr.list = dmrTable.list, group.names = apo.pair.analysis.names)
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE, fig.height = 4.5}
 
-vennDMR(dmr.list = dmrTable2p.list, group.names = apo.pair.analysis.names)
+vennDMR(dmr.list = dmrTable2p.list, group.names = apo.pair.analysis.names[[an]])
 
 ```
 **Figure 10.** This figure shows the number of overlapping DMR between each pairwise analysis. Multiple window DMRs at a p-value threshold of `r format(reportPvalue, scientific = T)` are shown here.

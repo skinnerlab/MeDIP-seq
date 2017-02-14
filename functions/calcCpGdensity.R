@@ -16,7 +16,9 @@ calcCpGdensity <- function(dmrList, maxDMR = 1000) {
         end = as.numeric(i["stop"])))["CG"]
       })
     cpgDensity <- 100 * cpgNum / dmrList$length
-    return(cbind(dmrList, cpgNum, cpgDensity))
+    dmrList$cpgNum <- cpgNum
+    dmrList$cpgDensity <- cpgDensity
+    return(dmrList)
   } else {
     return(dmrList)
   }

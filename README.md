@@ -15,6 +15,8 @@ medipPipeline is available at https://github.com/danlbek/medipPipeline.
 
 **medipAnalysis.R:** Performs the basic MeDIP-seq analysis using the MEDIPS library.
 
+**medipAnalysisLM.R:** This is a low memory version of medipAnalysis.R.
+
 **medipProcessing.R:** Identifies DMR and generates DMR tables.
 
 **annotateDMRs.R:** Adds annotation information to DMR tables.

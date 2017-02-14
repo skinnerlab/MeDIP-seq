@@ -9,7 +9,7 @@
 ####
 
 # lab category -> gene name (This is a curated lab-specific list)
-symCat<-read.csv("symbolCategory_v1.csv", stringsAsFactors=F)
+symCat<-read.csv("symbolCategory_v2.csv", stringsAsFactors=F)
 
 # gene -> homolog (This is the homoloGene database from NCBI)
 homo <- read.table("homologene_v1.data", sep="\t", stringsAsFactors=F)
@@ -60,4 +60,4 @@ labCat <- sapply(sapply(labCat, function(i) i[which(!is.na(i))]), paste, collaps
 
 annotationTable <- cbind(homologNumber, humanSymbol, labCat, pantherLabCat, humanPanther, humanSummary)
 
-write.table(annotationTable, file="annotationTable.csv", quote=F, row.names=F, sep="\t")
+write.table(annotationTable, file="annotationTable_v2.csv", quote=F, row.names=F, sep="\t")

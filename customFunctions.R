@@ -60,6 +60,10 @@ source("./functions/removeDuplicates.R")
 source("./functions/draw.quintuple.venn.dbmod.R")
 source("./functions/draw.quad.venn.dbmod.R")
 source("./functions/draw.triple.venn.dbmod.R")
+## Use a sliding window to count things in genomic windows
+source("./functions/swCount.R")
+## Extracts all windows that meet CpG number thresholds
+source("./functions/identifyZero.R")
 
 ## These are no longer used. I've kept them in this file for documentation and on the off 
 ## chance they become useful.

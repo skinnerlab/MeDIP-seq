@@ -5,8 +5,12 @@
 # in the reference. Since getGSeq() isn't working, this doesn't work well either.
 alignSeqs <- function(seqs, cigars, startPos, sampleName = "", refStart = NULL, refEnd = NULL) {
   
-  minPos <- min(c(startPos, refStart))
-  maxPos <- max(c(startPos, refEnd))
+  minPos <- min(c(startPos, refStart), na.rm=T)
+  maxPos <- max(c(startPos, refEnd), na.rm=T)
+  
+  seqs <- seqs[!is.na(cigars)]
+  startPos <- startPos[!is.na(cigars)]
+  cigars <- cigars[!is.na(cigars)]
   
   startGap <- sapply(startPos - minPos, function(i) paste(rep("-", i), collapse = ""))
   endGap <- sapply(maxPos - startPos, function(i) paste(rep("-", i), collapse = ""))
@@ -14,6 +18,7 @@ alignSeqs <- function(seqs, cigars, startPos, sampleName = "", refStart = NULL, 
   processed <- sapply(1:length(seqs), function(i) {
     list(getGSeq(seq = seqs[i], cigar = cigars[i]))
   })
+  processed <- processed[!sapply(processed, is.null)]
   cSeqs <- sapply(processed, function(i) i[[1]])
   nDel <- sapply(processed, function(i) i[[2]])
   alignedSeqs <- DNAStringSet(paste(startGap, cSeqs, endGap, sep=""))

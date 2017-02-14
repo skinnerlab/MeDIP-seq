@@ -153,7 +153,7 @@ for (i in 1:length(seqFiles$sampleName)) {
                  " > ", dataDirectory, bamFileName[i], sep=""))
     system(paste("samtools sort -@ ", numSamThreads, 
                  " ", dataDirectory, bamFileName[i], 
-                 " ", dataDirectory, paste("s",seqFiles$sampleName[i], sep=""), 
+                 " -o ", dataDirectory, sbamFileName[i], 
                  sep=""))
   }
 

@@ -9,14 +9,25 @@ getGSeq <- function(seq, cigar) {
   letters <- sc[letterPos]
   sc[letterPos] <- "_"
   numbers <- as.numeric(unlist(strsplit(paste(sc, collapse=""), split="_")))
+  rpos <- 1 # position in read
   
   fragments <- list()
   for (i in 1:length(letters)) {
-    if (letters[i] == "M") fragments[[i]] <- subseq(seq, 1, width = numbers[i])
-    if (letters[i] == "D") fragments[[i]] <- ""; paste(rep("-", numbers[i]), collapse = "")
+    if (letters[i] == "S") {
+      fragments[[i]] <- ""
+      rpos <- rpos + numbers[i]
+    }
+    if (letters[i] == "M") {
+      fragments[[i]] <- subseq(seq, rpos, width = numbers[i])
+      rpos <- rpos + numbers[i]
+    }
+    if (letters[i] == "D") {
+      fragments[[i]] <- paste(rep("-", numbers[i]), collapse = "")
+    }
     if (letters[i] == "I") { 
       fragments[[i]] <- ""
       nDel <- nDel + numbers[i]
+      rpos <- rpos + numbers[i]
     }
   }
   gappedSeq <- paste(sapply(fragments, as.character), collapse = "")
