@@ -125,3 +125,87 @@ cScale <- function(points, cLengths, method = c("max", "relative"), chrName) {
   return(cScales)
 }
 
+
+
+
+# Experimental function to add different samples to same plot in different colors.
+plotChromosomesMulti <- function(siteTable=NULL, clusters=NULL, chrLengths, ymar=4, tableNames=NULL,
+                            xmar=5, cex.axis=1, markerWidth=0, main="", colors=NULL, oAng=NULL, ...) {
+  # Check for null DMR table
+  if (!is.list(siteTable)) {warning("siteTable must be a list"); return()}
+  if (is.null(nrow(siteTable[[1]]))) {warning("first siteTable is empty"); return()}
+  chrNames <- names(chrLengths)
+  glen = 0.4
+  if (markerWidth == 0) {
+    markerWidth <- max(chrLengths) / 200
+  }
+  if (is.null(oAng)) oAng <- seq(from=-45, to=45, length.out=length(siteTable))
+  # generate empty plot
+  par(mar = c(xmar, ymar, 4, 2) + 0.1)
+  plot(c(1, max(chrLengths)), c(1 - glen, length(chrNames) + glen), type = "n", 
+       xlab = "", ylab = "", axes = FALSE, las = 2, main = main)
+  # add axes
+  axis(2, c(1:length(chrNames)), chrNames, las = 2, cex.axis = cex.axis)
+  axis(1, seq(0,max(chrLengths), max(chrLengths)/20), 
+       labels = paste(signif(seq(0, max(chrLengths), 
+                                 max(chrLengths) / 20) / 1e6, digits=3), "Mb"), 
+       las = 2, cex.axis = cex.axis)
+  
+  # plot lines and points for each chromosome
+  if (is.null(colors)) colors <- 1:length(siteTable)
+  for (j in 1:length(siteTable)) {
+    st <- siteTable[[j]]
+    for (i in chrNames) { 
+      rows <- st[which(st[, "chr"] == i),]
+      siteStart <- as.numeric(rows[, "start"])
+      siteStop <- as.numeric(rows[, "stop"])
+      if (!is.null(clusters)) {
+        if (!(nrow(clusters) == 0)) {
+          clusterRows <- clusters[which(clusters[, "chr"] == i), ]
+          clusterStart <- as.numeric(clusterRows[, "start"])
+          clusterStop <- as.numeric(clusterRows[, "stop"])
+          plotRect(chrName = i, siteStart = clusterStart, siteStop = clusterStop, 
+                   chrLengths = chrLengths)
+        }
+      }
+      plotLine(chrName = i, siteStart = siteStart, siteStop = siteStop, color.marker = colors[j],
+               chrLengths = chrLengths, markerWidth = markerWidth, oAngle = oAng[j], ...)
+    }
+  }
+  legend("topright", legend=tableNames, fill=colors, bty="n")
+
+}
+
+
+plotLine <- function(chrName, siteStart, siteStop, chrLengths, markerWidth = 500000,
+                     color.marker = "red", color.chr = "blue", oAngle=0) {
+
+  # Count the number of site markers
+  nSites <- length(siteStart)
+  
+  chrNumber <- match(chrName, names(chrLengths))
+  
+  # x position
+  midpoint <- rowMeans(cbind(siteStart, siteStop))
+  
+  # top and bottom y positions
+  xscale <- max(chrLengths)/(length(chrLengths)*1.2)
+  ypos <- rep(chrNumber, nSites)
+  yang.adj <- 0.4 * cos(pi * oAngle / 180)
+  xang.adj <- 0.4 * sin(pi * oAngle / 180)
+  ytop <- ypos + yang.adj
+  xtop <- abs(midpoint) + (xscale*xang.adj)
+  ybot <- ypos - yang.adj
+  xbot <- abs(midpoint) - (xscale*xang.adj)
+
+  ## Plot site markers
+  if (nSites > 0) {
+    for (i in 1:length(midpoint)) {
+      segments(xbot[i], ybot[i], xtop[i], ytop[i], col=color.marker, lwd=2)
+
+    }
+  }
+
+  ## Plot chromosome lines
+  lines(c(1, chrLengths[chrNumber]), c(chrNumber, chrNumber), col = color.chr)
+}

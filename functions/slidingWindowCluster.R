@@ -94,6 +94,7 @@ slidingWindowCluster <- function(ctable, windowLength, incrementLength) {
   sliding_window[, "P-value"] <- P_value
   sliding_window <- sliding_window[order(sliding_window[, "Chromosome"], 
                                          sliding_window[, "cSTART"]), ]
+  sliding_window <- as.data.frame(sliding_window) ## Added to prevent collapse of matrix to vector in some cases (DB 2/17/2017)
   sliding_window <- sliding_window[which(as.numeric(as.character(
                                    sliding_window[, "P-value"])) < 0.05), ]
   

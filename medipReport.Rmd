@@ -38,6 +38,9 @@ MTCpvc <- which(MTCpValues == MTCreportPvalue)
 load(paste(resultsDirectory, comparisonNames[an], "/methLists.RData", sep = ""))
 load(paste(resultsDirectory, comparisonNames[an], "/methResults.RData", sep = ""))
 load(paste(resultsDirectory, "qcLists.RData", sep=""))
+
+sn <- c(seqFiles$sampleName[comparison[[an]]$mset1], seqFiles$sampleName[comparison[[an]]$mset2])
+
 ```
 
 # MeDIP analysis summary for the `r projectName` project
@@ -51,7 +54,6 @@ The samples `r paste(seqFiles$sampleName[comparison[[an]]$mset1], collapse = ", 
 `r ifelse(cleanReads, "The raw data was cleaned and filtered to remove adapters and low-quality bases using Trimmomatic. The following table shows the differences in read numbers in the raw and cleaned files.", ifelse(useCleanReads, "The raw data was cleaned and filtered. The exact methods are not specified. The following table shows the differences in read numbers in the raw and cleaned files.", "No cleaning or filtering of the raw data is specified."))`
 
 ```{r, echo = FALSE, results = "asis", message = FALSE, warning = FALSE}
-sn <- c(seqFiles$sampleName[comparison[[an]]$mset1], seqFiles$sampleName[comparison[[an]]$mset2])
 
 if (useCleanReads) {
   readCounts <- data.frame("sampleName" = sn, 
@@ -84,7 +86,7 @@ if (useCleanReads) {
   readCounts$sampleName <- gsub(readCounts$sampleName, pattern="__", replacement="_")
   row.names(readCounts) <- readCounts[,1]
   readCounts <- readCounts[, -1]
-  pandoc.table(readCounts, split.tables = 110, style = "rmarkdown", 
+  pandoc.table(readCounts, split.tables = 100, style = "simple", 
                caption = "This table shows the number and percent of reads before and 
                          after read filtering and trimming.")
 }
@@ -100,7 +102,7 @@ fnTable$sampleName <- gsub(fnTable$sampleName, pattern="__", replacement="_")
 row.names(fnTable) <- fnTable$sampleName
 fnTable <- fnTable[, -1]
 colnames(fnTable) <- c("first end filename", "second end filename", "sample type")
-pandoc.table(fnTable, split.tables = 110, style = "rmarkdown", 
+pandoc.table(fnTable, split.tables = 100, style = "simple", 
              caption = "This table shows the association between the samples 
                        and the raw data files.")
 ```
@@ -111,7 +113,7 @@ A quality report for each raw data file was generated using FastQC and is availa
 if (mapReads){
   tmp <- mapExtract(cleaned = useCleanReads)
   colnames(tmp) <- gsub(colnames(tmp), pattern="__", replacement="_")
-  pandoc.table(tmp, split.tables = Inf, style = "rmarkdown", 
+  pandoc.table(tmp, split.tables = 100, style = "simple", 
                caption = 'This table shows the number of reads present for each sample 
                          and the overall alignment rate calculated by bowtie2.')
 }
@@ -127,7 +129,7 @@ The differential coverage analysis was performed using the MEDIPS R package. The
 
 ```{r, echo = FALSE, results = "asis", message = FALSE, warning = FALSE}
 ptable <- data.frame("unique"=uniq, "extend"=extend, "shift"=shift, "window.size"=ws, "p.adj"=p.adj, "diff.method"=diff.method, "min.row.sum"=minRowSum)
-pandoc.table(ptable, split.tables = Inf, style = "rmarkdown", 
+pandoc.table(ptable, split.tables = 100, style = "simple", 
              caption = 'This table shows various parameters used for the MEDIPS analysis')
 ```
 
@@ -136,12 +138,12 @@ DMRs were defined using a `r diff.method` p-value threshold of `r reportPvalue` 
 
 ```{r, echo = FALSE, results = "asis", message = FALSE, warning = FALSE}
 
-pandoc.table(as.data.frame(dmrNumberTable), split.tables = 110, style = "rmarkdown", 
+pandoc.table(as.data.frame(dmrNumberTable), split.tables = 100, style = "simple", 
              caption = "This table shows the number of DMRs found using different p-value cutoff 
                      thresholds. The allWindow column shows all DMRs. The twoWindow column 
                      shows the number of DMRs containing at least two significant windows.")
 
-pandoc.table(as.data.frame(MTCdmrNumberTable), split.tables = 110, style = "rmarkdown", 
+pandoc.table(as.data.frame(MTCdmrNumberTable), split.tables = 100, style = "simple", 
              caption = "This table shows the number of DMRs found using different multiple 
                        testing corrected p-value cutoff thresholds. The allWindow column shows 
                        all DMRs. The twoWindow column shows the number of DMRs containing at least 
@@ -156,7 +158,7 @@ nWin <- table(methList[[pvc]]$numSigWin)
 nWinTable <- as.data.frame(matrix(ncol = length(nWin), nrow = 2, c(names(nWin), nWin), byrow = T))
 row.names(nWinTable) <- c("Number of significant windows", "Number of DMR")
 colnames(nWinTable) <- rep(" ", ncol(nWinTable))
-pandoc.table(nWinTable, split.tables = 110, style = "rmarkdown", 
+pandoc.table(nWinTable, split.tables = 100, style = "simple", 
              caption = paste("This table shows the number of DMR with each specific number of 
                              significant windows at a p-value threshold of ", 
                              reportPvalue, sep = ""))
@@ -197,30 +199,30 @@ hist(methResults$edgeR.adj.p.value, breaks = 100, ylim = c(0, ylim),
 ### Chromosome plot
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE, fig.height = 8}
-# # Find clusters
-# dmrList <- methList[[pvc]]
-# 
-# clusterObject <- slidingWindowCluster(formatForCluster(dmrList), 
-#                                       windowLength = 2000000, incrementLength = 50000)
-# colnames(clusterObject) <- c("chr", "start", "stop", "minP")
-# chrLengths <- seqlengths(eval(parse(text = referenceName)))
-# plotChromosomes(siteTable = dmrList, chrLengths = chrLengths, 
-#                 ymar = 5, clusters = clusterObject)
+# Find clusters
+dmrList <- methList[[pvc]]
+
+clusterObject <- slidingWindowCluster(formatForCluster(dmrList),
+                                      windowLength = 2000000, incrementLength = 50000)
+colnames(clusterObject) <- c("chr", "start", "stop", "minP")
+chrLengths <- seqlengths(eval(parse(text = referenceName)))
+plotChromosomes(siteTable = dmrList, chrLengths = chrLengths,
+                ymar = 5, clusters = clusterObject)
 
 ```
 
 **Figure 3.** This figure shows the DMR locations on the individual chromosomes or contigs. All DMRs at a p-value threshold of `r format(reportPvalue, scientific = T)` are shown here.
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE, fig.height = 8}
-# # find clusters
-# dmrList <- methList2p[[pvc]]
-# 
-# clusterObject <- slidingWindowCluster(formatForCluster(dmrList), 
-#                                       windowLength = 2000000, incrementLength = 50000)
-# colnames(clusterObject) <- c("chr", "start", "stop", "minP")
-# chrLengths <- seqlengths(eval(parse(text = referenceName)))
-# plotChromosomes(siteTable = dmrList, chrLengths = chrLengths, 
-#                 ymar = 5, clusters = clusterObject)
+# find clusters
+dmrList <- methList2p[[pvc]]
+
+clusterObject <- slidingWindowCluster(formatForCluster(dmrList),
+                                      windowLength = 2000000, incrementLength = 50000)
+colnames(clusterObject) <- c("chr", "start", "stop", "minP")
+chrLengths <- seqlengths(eval(parse(text = referenceName)))
+plotChromosomes(siteTable = dmrList, chrLengths = chrLengths,
+                ymar = 5, clusters = clusterObject)
 
 ```
 
@@ -371,7 +373,7 @@ a <- a[which(match(row.names(a), sn, nomatch=0)>0), which(match(colnames(a), sn,
 row.names(a) <- gsub(row.names(a), pattern="__", replacement="_")
 colnames(a) <- gsub(colnames(a), pattern="__", replacement="_")
 
-pandoc.table(a, split.tables=110, style="rmarkdown", caption="This table shows the pairwise Pearson correlation coefficient between sample coverage profiles.")
+pandoc.table(a, split.tables=100, style="simple", caption="This table shows the pairwise Pearson correlation coefficient between sample coverage profiles.")
 
 ```
 
@@ -422,22 +424,62 @@ mtext(paste("% RPKM read depth in ", ms1n, sep=""), side=4, line=3, col="black")
 
 **Figure 14.** This figure shows mean read number (RPKM) of genomic windows with an edgeR p-value < `r reportPvalue`. Genomic windows are ordered by the proportion of read number (RPKM) in the two groups (shown as the black line).
 
+```{r, echo = FALSE, message = FALSE, warning = FALSE, fig.height = 6}
+
+mset1.counts <- methResults$MSets1.counts.mean
+mset2.counts <- methResults$MSets2.counts.mean
+prop.counts <- mset1.counts / (mset1.counts + mset2.counts)
+
+pvt.filter <- which(methResults$edgeR.p.value < reportPvalue)
+filt.m1.c <- mset1.counts[pvt.filter]
+filt.m2.c <- mset2.counts[pvt.filter]
+filt.prop.c <- prop.counts[pvt.filter]
+
+ms1n <- paste(unique(seqFiles[comparison[[an]]$mset1,"ctFlag"]), collapse="")
+ms2n <- paste(unique(seqFiles[comparison[[an]]$mset2,"ctFlag"]), collapse="")
+
+par(mar=c(5,4,4,5)+.1)
+plot(1:length(filt.prop.c), filt.m1.c[order(filt.prop.c)], 
+     ylim=c(0, max(c(filt.m1.c, filt.m2.c))), type="l", 
+     col="red", xlab="Genomic window", ylab="Mean raw read depth")
+points(1:length(filt.prop.c), filt.m2.c[order(filt.prop.c)], type="l", col="blue")
+legend("topleft", fill=c("red", "blue", "black"), c(ms1n, ms2n, paste("% ", ms1n, sep="")))
+par(new=TRUE)
+plot(1:length(filt.prop.c), filt.prop.c[order(filt.prop.c)], type="l", 
+     col="black", xlab="", ylab="", xaxt="n", yaxt="n")
+axis(4, col="black")
+mtext(paste("% mean raw read depth in ", ms1n, sep=""), side=4, line=3, col="black")
+```
+
+**Figure 15.** This figure shows mean raw read number of genomic windows with an edgeR p-value < `r reportPvalue`. Genomic windows are ordered by the proportion of mean raw read number in the two groups (shown as the black line).
 
 
-```{r, echo = FALSE, message = FALSE, warning = FALSE, fig.height = 7}
 
-nz <- which((mset1.counts != 0) | (mset2.counts != 0))
-smoothScatter(mset1.counts[nz], mset2.counts[nz], xlab=paste("Mean read number (", ms1n, ")", sep=""), 
-     ylab=paste("Mean read number (", ms2n, ")", sep=""), nbin=c(100,100), bandwidth=2, 
-     colramp=colorRampPalette(colors=c("white", "black")))
-points(filt.m1.c, filt.m2.c, col="red")
-abline(a=0, b=1, lty=3, col="blue")
+```{r, echo = FALSE, message = FALSE, warning = FALSE, fig.height = 6}
+
+plot(1:length(filt.prop.c), filt.prop.c[order(filt.prop.c)], type="l", 
+     col="black", xlab="Genomic window", ylab="% mean raw read depth")
 
 ```
 
-**Figure 15.** This figure is a scatterplot of genomic windows plotted by mean read number for the two sample groups. All genomic windows are shown as a grey cloud, with darker areas representing regions with a high point density. Genomic windows with an edgeR p-value < `r reportPvalue` are drawn as red circles. 
+**Figure 16.** This figure shows the proportion of mean raw read number in the two groups for genomic windows with an edgeR p-value < `r reportPvalue`.
 
 
 
+```{r, echo = FALSE, message = FALSE, warning = FALSE, fig.height = 6}
 
+pvt.filter <- which(methResults$edgeR.p.value < reportPvalue)
+raw.table <- methResults[pvt.filter,grep(x=colnames(methResults), pattern='bam.rpkm')]
+colnames(raw.table) <- sn
+sample.type <- seqFiles$ctFlag[match(sn, seqFiles$sampleName)]
+
+pca.result <- prcomp(t(raw.table))
+plot(pca.result$x[,1], pca.result$x[,2], col=as.numeric(as.factor(sample.type)),
+     xlab = paste("PC1 - ", summary(pca.result)$importance[2,1]*100, "%", sep=""), 
+     ylab = paste("PC2 - ", summary(pca.result)$importance[2,2]*100, "%", sep=""))
+legend("topleft", c(ms1n, ms2n), fill=c("black", "red"))
+
+```
+
+**Figure 17.** This figure shows the samples plotted by the first two principal components. The underlying data is the RPKM read depth for all genomic windows with an edgeR p-value < `r reportPvalue`.
 

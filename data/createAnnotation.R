@@ -1,5 +1,5 @@
 ## Created 2/25/2016 by Daniel Beck
-## Modified 2/26/2016
+## Modified 2/28/2017
 
 ## This script builds a table with custom annotation information. 
 ## It will be used by the medipPipeline to annotate DMR.
@@ -9,7 +9,7 @@
 ####
 
 # lab category -> gene name (This is a curated lab-specific list)
-symCat<-read.csv("symbolCategory_v2.csv", stringsAsFactors=F)
+symCat<-read.csv("symbolCategory_v3.csv", stringsAsFactors=F)
 
 # gene -> homolog (This is the homoloGene database from NCBI)
 homo <- read.table("homologene_v1.data", sep="\t", stringsAsFactors=F)
@@ -59,5 +59,7 @@ labCat <- sapply(sapply(labCat, function(i) i[which(!is.na(i))]), paste, collaps
 ####
 
 annotationTable <- cbind(homologNumber, humanSymbol, labCat, pantherLabCat, humanPanther, humanSummary)
+annotationTable[,6] <- gsub(annotationTable[,6], pattern=",", replacement=";")
+annotationTable[,6] <- gsub(annotationTable[,6], pattern="\"", replacement="-")
 
-write.table(annotationTable, file="annotationTable_v2.csv", quote=F, row.names=F, sep="\t")
+write.csv(annotationTable, file="annotationTable_v3.csv", quote=F, row.names=F)

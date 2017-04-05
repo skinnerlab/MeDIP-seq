@@ -22,7 +22,7 @@ fixDMR <- function(methResults, methList, methListETC, pValues, MTC=FALSE, scaff
           } else {
                sigWin <- methResults[which(methResults$edgeR.p.value < pValues[pV]),]
           }
-          
+          if (nrow(sigWin) > 0) {
           # loop over every significant window
           dmrList <- list()
           for (i in 1:nrow(sigWin)){
@@ -88,7 +88,9 @@ fixDMR <- function(methResults, methList, methListETC, pValues, MTC=FALSE, scaff
           a <- max(which(colnames(dmrList2)=="annotation"), 0)
           if (a) dmrList2 <- dmrList2[,-c(a)]
           modifiedML[[pV]] <- dmrList2
-
+          } else {
+            modifiedML[[pV]] <- NA
+          }
      }
      return(modifiedML)
 }
