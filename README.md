@@ -11,9 +11,9 @@ medipPipeline is available at https://github.com/danlbek/medipPipeline.
 
 **dataNames.R:** Configuration file for the pipeline. It contains filenames, file locations, constants, and other adjustable parameters.
 
-**prepareData.R:** Cleans, filteres (Trimmomatic), and maps (Bowtie2) reads as well as generates read quality reports (FastQC).
+**prepareData.R:** Cleans, filters (Trimmomatic), and maps (Bowtie2) reads as well as generates read quality reports (FastQC).
 
-**medipAnalysis.R:** Performs the basic MeDIP-seq analysis using the MEDIPS library.
+**medipAnalysis.R:** Performs the basic MeDIP-seq analysis using the MEDIPS R library.
 
 **medipAnalysisLM.R:** This is a low memory version of medipAnalysis.R.
 
