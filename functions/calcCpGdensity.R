@@ -8,6 +8,11 @@ calcCpGdensity <- function(dmrList, maxDMR = 1000) {
   if (is.null(nrow(dmrList)))
     return(dmrList)
   if (nrow(dmrList) < maxDMR && nrow(dmrList) > 0) {
+    # If single site, include entire CpG
+    singleSite <- which(dmrList$start==dmrList$stop)
+    dmrList$stop[singleSite] <- dmrList$stop[singleSite]+1
+    dmrList$start[singleSite] <- dmrList$start[singleSite]-1
+    
     cpgNum <- apply(dmrList, 1, function(i) {
       dinucleotideFrequency(subseq(
         eval(parse(text = referenceName))[[match(i["chr"],

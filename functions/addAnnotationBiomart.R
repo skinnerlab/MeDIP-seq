@@ -51,12 +51,12 @@ addAnnotationBiomart <- function(dmrList, annotationObject, chrPrefix = "", maxD
     }
 
     # Add category information from custom list      
-    symCat <- read.csv("/projects/medipPipeline/data/symbolCategory_v1.csv", 
+    symCat <- read.csv("/projects/medipPipeline/data/symbolCategory_v3.csv", 
                        stringsAsFactors = F)
     homoloGene <- read.table("/projects/medipPipeline/data/homologene_v1.data", 
                              sep = "\t", stringsAsFactors = F)
-    annotationTable <- read.table("/projects/medipPipeline/data/annotationTable_v1.txt", 
-                                  stringsAsFactors = F, quote = "", sep = "\t", header = T)
+    annotationTable <- read.csv("/projects/medipPipeline/data/annotationTable_v3.csv", 
+                                  stringsAsFactors = F)
     
     genes <- lapply(annMat$external_gene_name, function(j) { 
       g <- identifyCategory(query = j, homologs = homoloGene, categories = symCat, annotationTable = annotationTable)
