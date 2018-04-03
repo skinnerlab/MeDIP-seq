@@ -10,7 +10,14 @@ source("customFunctions.R")
 library(bsgenomePackageName, character.only = T, lib.loc = genomeDirectory)
 library(biomaRt)
 
-for (analysis in 1:length(comparison)) {
+# Moving this here so it is only called once. It failes occationally for unknown reasons. 
+if (annotationType == "biomart") {
+  annotationObject <- useMart(biomart = "ensembl",
+                              dataset = biomartDataset, 
+                              host = biomartHost)
+}
+
+for (analysis in 1:length(comparisonNames)) { 
   if (!(comparison[[analysis]]$pairs[1])) {  # Don't calculate annotation for pair analysis
     load(paste(resultsDirectory, comparisonNames[analysis], "/methLists.RData", sep = ""))
        
@@ -37,9 +44,9 @@ for (analysis in 1:length(comparison)) {
     }
     
     if (annotationType == "biomart") {
-      annotationObject <- useMart(biomart = "ensembl",
-                                  dataset = biomartDataset, 
-                                  host = biomartHost)
+      # annotationObject <- useMart(biomart = "ensembl",
+      #                             dataset = biomartDataset, 
+      #                             host = biomartHost)
             
       for (i in 1:length(methList)) {
         a <- addAnnotationBiomart(dmrList = methList[[i]], extension = 10000,

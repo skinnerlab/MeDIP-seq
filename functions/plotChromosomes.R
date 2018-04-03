@@ -12,7 +12,7 @@
 
 # Main chromosome plot function
 plotChromosomes <- function(siteTable=NULL, clusters=NULL, chrLengths, ymar=4, 
-                            xmar=5, cex.axis=1, markerWidth=0, main="", ...) {
+                            xmar=6, cex.axis=1, markerWidth=0, main="", cex.lab=1, ...) {
   # Check for null DMR table
   if (is.null(nrow(siteTable))) return()
   if(nrow(siteTable) > 0){
@@ -24,14 +24,15 @@ plotChromosomes <- function(siteTable=NULL, clusters=NULL, chrLengths, ymar=4,
     # generate empty plot
     par(mar = c(xmar, ymar, 4, 2) + 0.1)
     plot(c(1, max(chrLengths)), c(1 - glen, length(chrNames) + glen), type = "n", 
-         xlab = "", ylab = "", axes = FALSE, las = 2, main = main)
+         xlab = "", ylab = "Chromosome", axes = FALSE, las = 2, main = main, cex.lab=cex.lab)
     # add axes
     axis(2, c(1:length(chrNames)), chrNames, las = 2, cex.axis = cex.axis)
     axis(1, seq(0,max(chrLengths), max(chrLengths)/20), 
          labels = paste(signif(seq(0, max(chrLengths), 
-                                   max(chrLengths) / 20) / 1e6, digits=3), "Mb"), 
+                                   max(chrLengths) / 20) / 1e6, digits=3)), 
          las = 2, cex.axis = cex.axis)
-    
+    mtext("Chromosome length (Mb)", side=1, line=4, cex=cex.lab)
+
     # plot lines and points for each chromosome
     for (i in chrNames) { 
       rows <- siteTable[which(siteTable[, "chr"] == i),]

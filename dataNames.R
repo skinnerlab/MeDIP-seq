@@ -173,7 +173,7 @@ diff.method <- "edgeR"
 MeDIP <- FALSE
 CNV <- FALSE
 CScalc <- FALSE
-minRowSum <- 1
+minRowSum <- 40
 
 # This vector holds all raw p-value thresholds to use for the analyses. 
 pValues <- c(1e-03, 1e-04, 1e-05, 1e-06, 1e-07)
@@ -224,42 +224,17 @@ biomartDataset <- ""
 ## each of these.
 
 # Names for the comparisons
-comparisonNames <- 
-  c("all",
-    "pair_1-2", "pair_1-3", "pair_2-3",
-    "pair_4-5", "pair_4-6", "pair_5-6",
-    "pair_1-4", "pair_1-5", "pair_1-6",
-    "pair_2-4", "pair_2-5", "pair_2-6",
-    "pair_3-4", "pair_3-5", "pair_3-6"
-  )
+comparisonNames <- c("all")
 
-## These objects hold information for APO (intersection) analyses.
-# apo.names is the equilivant of comparisonNames above
-apo.names <- c("apoF1")
-# This list holds the pair analyses names and should be a subset of the comparisonNames.
-apo.pair.analysis.names <- list()
-apo.pair.analysis.names[[1]] <- c("pairF1_1-4", "pairF1_2-5", "pairF1_3-6")
 
 # Which samples are being compared. The pairs flag was included to allow for a pairwise
 # type analysis. It isn't currently functional, but some code requires it.
 comparison <- list()
 comparison[[1]] <- data.frame(mset1=c(1:3), mset2=c(4:6), pairs=F)
-comparison[[2]] <- data.frame(mset1=c(1), mset2=c(2), pairs=T)
-comparison[[3]] <- data.frame(mset1=c(1), mset2=c(3), pairs=T)
-comparison[[4]] <- data.frame(mset1=c(2), mset2=c(3), pairs=T)
-comparison[[5]] <- data.frame(mset1=c(4), mset2=c(5), pairs=T)
-comparison[[6]] <- data.frame(mset1=c(4), mset2=c(6), pairs=T)
-comparison[[7]] <- data.frame(mset1=c(5), mset2=c(6), pairs=T)
-comparison[[8]] <- data.frame(mset1=c(1), mset2=c(4), pairs=T)
-comparison[[9]] <- data.frame(mset1=c(1), mset2=c(5), pairs=T)
-comparison[[10]] <- data.frame(mset1=c(1), mset2=c(6), pairs=T)
-comparison[[11]] <- data.frame(mset1=c(2), mset2=c(4), pairs=T)
-comparison[[12]] <- data.frame(mset1=c(2), mset2=c(5), pairs=T)
-comparison[[13]] <- data.frame(mset1=c(2), mset2=c(6), pairs=T)
-comparison[[14]] <- data.frame(mset1=c(3), mset2=c(4), pairs=T)
-comparison[[15]] <- data.frame(mset1=c(3), mset2=c(5), pairs=T)
-comparison[[16]] <- data.frame(mset1=c(3), mset2=c(6), pairs=T)
 
+# Description added directly to report
+comparisonDescription <- list()
+comparisonDescription[[1]] <- "All control vs all treated"
 
 #################
 ## Data checks ##

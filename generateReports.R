@@ -1,52 +1,35 @@
 ## Created 8/10/2015 by Daniel Beck
-## Last modified 7/12/2016
+## Last modified 11/9/2016
 
 ## This script automatically generates all relevant reports for selected comparisons and
-## p-values. The number of analyses, p-values, MTC p-values, and calcVar flags should be
-## the same.
+## p-values. The number of analyses, p-values, and option flags should be the same.
 
 source("dataNames.R")
 source("customFunctions.R")
 library("rmarkdown")
 
-standardReport <- c("allF1", "allF2", "allF3")
-apoReport <- c("apoF1", "apoF2", "apoF3")
-standardPvalues <- rep(1e-06, 3)
-apoPvalues <- rep(1e-03, 3)
-standardMTCpValues <- rep(0.05, 3)
-apoMTCpValues <- rep(0.1, 3)
+report.analyses <- c("DDT.Caput", "Vin.Caput")
+report.pvalues <- rep(1e-5, 2)
+report.filenames <- paste(resultsDirectory, report.analyses, "/report_", gsub(" ", "_", projectName), "_", 
+                         report.analyses, "_", report.pvalues, ".pdf", sep="")
 
-calcVar <- rep(TRUE, 3)
+cpgMaxV <- rep(NA, length(report.analyses))    # Y-axis maximum for CpG density histogram (NA for auto).
+lenMaxV <- rep(NA, length(report.analyses))    # Y-axis maximum for DMR length histogram (NA for auto).
+topNV <- rep(NA, length(report.analyses))      # Generate figures using top N DMR (NA for all DMR).
 
-## For generating standard reports
-for (i in 1:length(standardReport)){
-  analysisName <- standardReport[i]
-  reportPvalue <- standardPvalues[i] 
-  MTCreportPvalue <- standardMTCpValues[i]
-  cVar <- calcVar[i]
-  reportFileName <- paste(resultsDirectory, standardReport, "/", gsub(" ", "_", projectName), 
-                          "_", analysisName, "_", standardPvalues[i], "_", standardMTCpValues[i], 
-                          "_report.pdf", sep = "")
-  save(analysisName, MTCreportPvalue, reportPvalue, cVar, 
+## For generating reports
+for (i in 1:length(report.analyses)){
+  analysisName <- report.analyses[i]
+  reportPvalue <- report.pvalues[i] 
+  cpgMax <- cpgMaxV[i]
+  lenMax <- lenMaxV[i]
+  topN <- topNV[i]
+  save(analysisName, reportPvalue, cpgMax, lenMax, topN,
        file = paste(codeDirectory, "/reportValues.Rdata", sep = ""))
   render(input = "medipReport.Rmd", output_file = reportFileName[i])
 }
 
-## For generating intersection (APO) reports
-if (!is.null(apoReport)) {
-  for (i in 1:length(apoReport)) {
-    analysisName <- apoReport[i]
-    reportPvalue <- apoPvalues[i] 
-    MTCreportPvalue <- apoMTCpValues[i]
-    reportFileName <- paste(resultsDirectory, apoReport, "/", gsub(" ", "_", projectName), 
-                            "_", analysisName, "_", apoPvalues[i], "_", apoMTCpValues[i], 
-                            "_intersection_report.pdf", sep = "")
-    save(analysisName, MTCreportPvalue, reportPvalue,
-         file = paste(codeDirectory, "/reportValues.Rdata", sep = ""))
-    render(input = "medipReport_APO.Rmd", output_file = reportFileName[i])
- 
-  } 
-}
+
 
 
 
