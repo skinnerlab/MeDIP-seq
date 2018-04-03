@@ -5,7 +5,7 @@ This repository currently contains a collection of R scripts and functions for a
 
 ## Availability
 
-medipPipeline is available at https://github.com/danlbek/medipPipeline.
+medipPipeline is available at https://github.com/skinnerlab/MeDIP-seq
 
 ## Overview
 
