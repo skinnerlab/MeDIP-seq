@@ -15,8 +15,6 @@ medipPipeline is available at https://github.com/skinnerlab/MeDIP-seq
 
 **medipAnalysis.R:** Performs the basic MeDIP-seq analysis using the MEDIPS R library.
 
-**medipAnalysisLM.R:** This is a low memory version of medipAnalysis.R.
-
 **medipProcessing.R:** Identifies DMR and generates DMR tables.
 
 **annotateDMRs.R:** Adds annotation information to DMR tables.
@@ -24,6 +22,4 @@ medipPipeline is available at https://github.com/skinnerlab/MeDIP-seq
 **customFunctions.R:** Wrapper for loading all custom functions used by the pipeline. These functions are stored in the functions folder.
 
 **generateReports.R:** Wrapper for generating reports summarizing the MeDIP-seq results. This script renders the report using the **mediepReport.Rmd** code.
-
-**publicationFiles.R:** Produces separate files for selected tables and plots. 
 

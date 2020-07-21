@@ -22,7 +22,7 @@ addAnnotationBiomart <- function(dmrList, annotationObject, chrPrefix = "", maxD
       while((ca == 1) | ((class(a) == "try-error") & ca <= tryLimit)) {
         a <- try(
              annotation[[i]] <- getBM(
-                     attributes = c("external_gene_name", "entrezgene", "chromosome_name", 
+                     attributes = c("external_gene_name", "entrezgene_id", "chromosome_name", 
                                     "start_position", "end_position", "ensembl_gene_id", 
                                     "description"),
                      filters = c("chromosome_name", "start", "end"),

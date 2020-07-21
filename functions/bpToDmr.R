@@ -6,7 +6,6 @@
 
 bpToDmr <- function(dmrTable, bpList) {
   if (is.null(bpList)) return(NULL)
-  dmrTable$chr <- as.character(dmrTable$chr)
   chrList <- split.data.frame(dmrTable, f = dmrTable$chr)
   chrList <- chrList[which(sapply(chrList, nrow) > 0)]
   commonChrs <- names(which(table(c(unique(dmrTable$chr), names(bpList))) == 2))

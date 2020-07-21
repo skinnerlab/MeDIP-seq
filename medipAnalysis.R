@@ -70,7 +70,7 @@ for (analysis in 1:length(comparison)) {
                              MeDIP = MeDIP,
                              CNV = CNV,
                              CSet = CS,
-                             minRowSum = minRowSum)
+                             minRowSum = minRowSum[analysis])
   # Save results to a comparison specific folder in the results directory
   system(paste("mkdir ", resultsDirectory, comparisonNames[analysis], sep=""))
   save(methResults, file=paste(resultsDirectory, 

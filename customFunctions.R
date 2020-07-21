@@ -64,6 +64,10 @@ source("./functions/draw.triple.venn.dbmod.R")
 source("./functions/swCount.R")
 ## Extracts all windows that meet CpG number thresholds
 source("./functions/identifyZero.R")
+## Converts list of vectors to a table
+source("./functions/tablify.R")
+## Functions to clean up annotations and dmrTables
+source("./functions/annTab.R")
 
 ## These are no longer used. I've kept them in this file for documentation and on the off 
 ## chance they become useful.

@@ -17,7 +17,6 @@ for (analysis in 1:length(comparison)) {
   # Results of the medipAnalysis.R script are loaded. 
   load(paste(resultsDirectory, comparisonNames[analysis], "/methResults.RData", sep=""))
   
-  
   ############################
   ## Identify all DMR (raw) ##
   ############################
@@ -40,7 +39,14 @@ for (analysis in 1:length(comparison)) {
     if (!is.null(methList[[pV]])) {
       oneUse <- strsplit(as.character(rbind(methListEtc[[pV]])[, "edgeR.p.value"]), 
                          split = ";")
+      oneUseFC <- strsplit(as.character(rbind(methListEtc[[pV]])[, "edgeR.logFC"]), 
+                           split = ";")
       methList[[pV]]$minP <- sapply(oneUse, function(i) min(as.numeric(i)))
+      
+      methList[[pV]]$maxLFC <- sapply(1:length(oneUse), function(i) {
+        lfc <- as.numeric(oneUseFC[[i]][which(as.numeric(oneUse[[i]])<pValues[pV])])
+        lfc[which(abs(lfc)==max(abs(lfc)))][1]
+      })
       # Correct DMR edges that fall outside of chromosome boundaries
       methList[[pV]] <- modifyStop(dmrList = methList[[pV]], 
                                    refGenome = eval(parse(text = referenceName)), 
@@ -66,9 +72,15 @@ for (analysis in 1:length(comparison)) {
   # Loop over all p-value thresholds
   for (pV in 1:length(MTCmethList)) {
     if (!is.null(MTCmethList[[pV]])) {
-      oneUse <- strsplit(as.character(rbind(MTCmethListEtc[[pV]])[, "edgeR.p.value"]), 
+      oneUse <- strsplit(as.character(rbind(MTCmethListEtc[[pV]])[, "edgeR.adj.p.value"]), 
                          split = ";")
-      MTCmethList[[pV]]$minP <- sapply(oneUse, function(i) min(as.numeric(i)))
+      oneUseFC <- strsplit(as.character(rbind(MTCmethListEtc[[pV]])[, "edgeR.logFC"]), 
+                           split = ";")
+      MTCmethList[[pV]]$minPadj <- sapply(oneUse, function(i) min(as.numeric(i)))
+      MTCmethList[[pV]]$maxLFC <- sapply(1:length(oneUse), function(i) {
+        lfc <- as.numeric(oneUseFC[[i]][which(as.numeric(oneUse[[i]])<MTCpValues[pV])])
+        lfc[which(abs(lfc)==max(abs(lfc)))][1]
+      })
       # Correct DMR edges that fall outside of chromosome boundaries
       MTCmethList[[pV]] <- modifyStop(dmrList = MTCmethList[[pV]], 
                                       refGenome = eval(parse(text = referenceName)), 

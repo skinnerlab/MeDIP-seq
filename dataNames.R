@@ -166,19 +166,18 @@ numSamThreads <- 10
 uniq <- 1
 extend <- 50
 shift <- 0
-ws = 100
+ws = 1000
 chr.select <- NULL
 p.adj <- "fdr"
 diff.method <- "edgeR"
 MeDIP <- FALSE
 CNV <- FALSE
 CScalc <- FALSE
-minRowSum <- 40
 
 # This vector holds all raw p-value thresholds to use for the analyses. 
 pValues <- c(1e-03, 1e-04, 1e-05, 1e-06, 1e-07)
 # This vector holds all multiple testing adjusted p-value thresholds to use for the analyses. 
-MTCpValues <- c(0.3, 0.2, 0.1, 0.05)
+MTCpValues <- c(0.1, 0.05, 0.01, 1e-3)
 
 ####################
 ## DMR parameters ##
@@ -196,7 +195,7 @@ adjDist <- 1000
 # The maxDMRnum variable gives a maximum number of DMRs on which to calculate CpG density and other
 # information. This speeds up the pipeline. However, this will need to be increased if the p-value 
 # of interest has more DMR than this number.
-maxDMRnum <- 5000
+maxDMRnum <- 10000
 
 ###########################
 ## Annotation parameters ##
@@ -235,6 +234,11 @@ comparison[[1]] <- data.frame(mset1=c(1:3), mset2=c(4:6), pairs=F)
 # Description added directly to report
 comparisonDescription <- list()
 comparisonDescription[[1]] <- "All control vs all treated"
+
+
+minRowSum <- sapply(comparison, function(i) length(which(c(i$mset1, i$mset2)>0)))*10
+ann.pvt <- c(rep(NA, length(comparison))) # Only annotate DMR set of interest
+
 
 #################
 ## Data checks ##

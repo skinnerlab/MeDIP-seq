@@ -82,10 +82,10 @@ if (useCleanReads) {
     cS1 <- paste("zcat ", dataDirectory, tempS1FileName, ' | wc -l', sep="")
     cS2 <- paste("zcat ", dataDirectory, tempS2FileName, ' | wc -l', sep="")
     
-    numRaw <- as.numeric(system(cRaw, intern=T))
-    numPair <- as.numeric(system(cPair, intern=T))
-    numS1 <- as.numeric(system(cS1, intern=T))
-    numS2 <- as.numeric(system(cS2, intern=T))
+    numRaw <- as.numeric(system(cRaw, intern=T))/4
+    numPair <- as.numeric(system(cPair, intern=T))/4
+    numS1 <- as.numeric(system(cS1, intern=T))/4
+    numS2 <- as.numeric(system(cS2, intern=T))/4
   
     totalS <- numS1 + numS2
     readCounts[i, 2:6] <- c(numRaw, numPair, totalS, numPair / numRaw, (numPair + totalS) / numRaw)
@@ -119,7 +119,7 @@ A quality report for each raw data file was generated using FastQC and is availa
 
 ```{r, echo = FALSE, results = "asis", message = FALSE, warning = FALSE}
 if (mapReads){
-  tmp <- mapExtract(cleaned = useCleanReads)
+  tmp <- mapExtract(cleaned = useCleanReads, sn=sn)
   colnames(tmp) <- gsub(colnames(tmp), pattern="__", replacement="_")
   pandoc.table(tmp, split.tables = 100, style = "simple", 
                caption = 'This table shows the number of reads present for each sample 
@@ -135,28 +135,31 @@ The *`r species`* reference genome was provided by `r provider` and was download
 The differential coverage analysis was performed using the MEDIPS R package. The analysis used a windows size of `r ws`bp. The `r diff.method` method was used to calculate p-values. The `r p.adj` multiple testing adjustment was also calculated. Annotation information was downloaded from `r ifelse(annotationType == "biomart", 'the Ensembl database using the biomaRt R package', annotationSource)`.
 
 ```{r, echo = FALSE, results = "asis", message = FALSE, warning = FALSE}
-ptable <- data.frame("unique"=uniq, "extend"=extend, "shift"=shift, "window.size"=ws, "p.adj"=p.adj, "diff.method"=diff.method, "min.row.sum"=minRowSum)
+ptable <- data.frame("unique"=uniq, "extend"=extend, "shift"=shift, "window.size"=ws, "p.adj"=p.adj, "diff.method"=diff.method, "min.row.sum"=mrs)
 pandoc.table(ptable, split.tables = 100, style = "simple", 
              caption = 'This table shows various parameters used for the MEDIPS analysis')
 ```
 
 ### DMR definition
-DMRs were defined using a `r diff.method` p-value threshold of `r reportPvalue`. The DMR edges were extended to include neighboring windows with a p-value less than `r dmrBoundPvalue`. Genomic windows are considered neighboring if they are within `r adjDist`bp of the DMR boundary. In other words, DMR edges are extended until there is no genomic window within `r adjDist`bp with a p-value less than `r dmrBoundPvalue`. 
+DMRs were defined using a `r diff.method` p-value threshold of `r reportPvalue`. The DMR edges were extended to include neighboring windows with a p-value less than `r dmrBoundPvalue`. Genomic windows are considered neighboring if they are within `r adjDist`bp of the DMR boundary. In other words, DMR edges are extended until there is no genomic window within `r adjDist`bp with a p-value less than `r dmrBoundPvalue`.
 
 ```{r, echo = FALSE, results = "asis", message = FALSE, warning = FALSE}
 colnames(dmrNumberTable) <- c("p-value", "all", "multipleWindow")
 colnames(MTCdmrNumberTable) <- c("p-value", "all", "multipleWindow")
+
 
 pandoc.table(as.data.frame(dmrNumberTable), split.tables = 100, style = "simple", 
              caption = "This table shows the number of DMRs found using different p-value cutoff 
                      thresholds. The all column shows all DMRs. The multipleWindow column 
                      shows the number of DMRs containing at least two significant windows.")
 
+
 pandoc.table(as.data.frame(MTCdmrNumberTable), split.tables = 100, style = "simple", 
              caption = "This table shows the number of DMRs found using different multiple 
                        testing corrected p-value cutoff thresholds. The all column shows 
                        all DMRs. The multipleWindow column shows the number of DMRs containing at least 
                        two significant windows.")
+
 
 ```
 
@@ -194,6 +197,7 @@ if (!is.na(topN)) {
 # Find clusters
 dmrList <- methList[[pvc]]
 
+if (nrow(dmrList) < 5000){
 if (nrow(dmrList) > 1){
   clusterObject <- slidingWindowCluster(formatForCluster(dmrList),
                                         windowLength = 2000000, incrementLength = 50000)
@@ -205,6 +209,7 @@ chrLengths <- seqlengths(eval(parse(text = referenceName)))
 plotChromosomes(siteTable = dmrList, chrLengths = chrLengths,
                 ymar = 5, clusters = clusterObject, cex.lab=1.5)
 
+}
 ```
 
 **Figure 1.** This figure shows the DMR locations on the individual chromosomes or contigs. All DMRs at a p-value threshold of `r format(reportPvalue, scientific = T)` are shown here.
@@ -384,19 +389,57 @@ axis(4, col="black")
 mtext(paste("% RPKM read depth in ", ms1n, sep=""), side=4, line=3, col="black")
 ```
 
-**Figure 9.** This figure shows mean read number (RPKM) of genomic windows with an edgeR p-value < `r format(reportPvalue, scientific = T)`. Genomic windows are ordered by the proportion of read number (RPKM) in the two groups (shown as the black line).
+**Figure 9a.** This figure shows mean read number (RPKM) of genomic windows with an edgeR p-value < `r format(reportPvalue, scientific = T)`. Genomic windows are ordered by the proportion of read number (RPKM) in the two groups (shown as the black line).
+
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, fig.height = 6}
+
+mset1.counts <- methResults$MSets1.counts.mean
+mset2.counts <- methResults$MSets2.counts.mean
+prop.counts <- mset1.counts / (mset1.counts + mset2.counts)
+
+pvt.filter <- which(methResults$edgeR.p.value < reportPvalue)
+filt.m1.c <- mset1.counts[pvt.filter]
+filt.m2.c <- mset2.counts[pvt.filter]
+filt.prop.c <- prop.counts[pvt.filter]
+
+ms1n <- paste(unique(seqFiles[comparison[[an]]$mset1,"ctFlag"]), collapse="")
+ms2n <- paste(unique(seqFiles[comparison[[an]]$mset2,"ctFlag"]), collapse="")
+
+par(mar=c(5,4,4,5)+.1)
+plot(1:length(filt.prop.c), filt.m1.c[order(filt.prop.c)], 
+     ylim=c(0, max(c(filt.m1.c, filt.m2.c))), type="l", 
+     col="red", xlab="Genomic window", ylab="Mean raw read depth")
+points(1:length(filt.prop.c), filt.m2.c[order(filt.prop.c)], type="l", col="blue")
+legend("topleft", fill=c("red", "blue", "black"), c(ms1n, ms2n, paste("% ", ms1n, sep="")))
+par(new=TRUE)
+plot(1:length(filt.prop.c), filt.prop.c[order(filt.prop.c)], type="l", 
+     col="black", xlab="", ylab="", xaxt="n", yaxt="n")
+axis(4, col="black")
+mtext(paste("% mean raw read depth in ", ms1n, sep=""), side=4, line=3, col="black")
+```
+
+**Figure 9b.** This figure shows mean raw read number of genomic windows with an edgeR p-value < `r format(reportPvalue, scientific = T)`. Genomic windows are ordered by the proportion of mean raw read number in the two groups (shown as the black line).
+
 
 \newpage
 
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE, fig.height = 6, dev='cairo_pdf'}
 
-plot(1:length(filt.prop.c), filt.prop.c[order(filt.prop.c)], type="l", 
-     col="black", xlab="Genomic window", ylab="% mean raw read depth")
+hist(methList[[pvc]]$maxLFC, breaks=20, xlab="Maximum DMR log fold change", ylab="Number of DMR", main="")
 
 ```
 
-**Figure 10.** This figure shows the proportion of mean raw read number in the two groups for genomic windows with an edgeR p-value < `r format(reportPvalue, scientific = T)`.
+**Figure 10a.** This figure is a histogram showing the maximum log fold change in expression of DMR at an edgeR p-value < `r format(reportPvalue, scientific = T)`. Positive values indicate increased methylation in the `r paste(unique(seqFiles$ctFlag[comparison[[an]]$mset2]), collapse=",")` treatment group. Negative values indicate increased methylation in the `r paste(unique(seqFiles$ctFlag[comparison[[an]]$mset1]), collapse=",")` treatment group.
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, fig.height = 6, dev='cairo_pdf'}
+
+plot(1:nrow(methList[[pvc]]), sort(methList[[pvc]]$maxLFC), type="l", ylab="Maximum DMR log fold change", xlab="DMR")
+
+```
+
+**Figure 10b.** This figure is a histogram showing the log fold change of DMR at an edgeR p-value < `r format(reportPvalue, scientific = T)`.
 
 
 \newpage
