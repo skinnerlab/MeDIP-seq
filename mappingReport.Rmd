@@ -1,0 +1,131 @@
+---
+output: pdf_document
+dev: cairo_pdf
+---
+
+<!-- Created 8/6/2020 by Daniel Beck-->
+<!-- This report summarizes the sample mapping and preliminary QC -->
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+
+# Load relevant libraries, custom functions, and the configuration script. Note, the
+# order is important, as dataNames.R holds information about the bsgenomePackageName.
+source("dataNames.R")
+source("customFunctions.R")
+library(pander)
+library(MEDIPS)
+library(bsgenomePackageName, character.only = T, lib.loc = genomeDirectory)
+library(Heatplus)
+
+sn <- seqFiles$sampleName
+
+load(paste(resultsDirectory, "qcLists.RData", sep=""))
+
+```
+
+## Raw data cleaning and mapping summary for the `r projectName` project
+Report generated `r format(Sys.Date(), format = "%B %d %Y")`
+
+`r ifelse(cleanReads, "The raw data was cleaned and filtered to remove adapters and low-quality bases using Trimmomatic. The following table shows the differences in read numbers in the raw and cleaned files.", ifelse(useCleanReads, "The raw data was cleaned and filtered. The exact methods are not specified. The following table shows the differences in read numbers in the raw and cleaned files.", "No cleaning or filtering of the raw data is specified."))`
+
+```{r, echo = FALSE, results = "asis", message = FALSE, warning = FALSE}
+
+if (useCleanReads) {
+  ## First check to see if values are precalculated. Calculate if necessary
+  if (is.na(match("fileSummary.csv", dir(dataDirectory)))){
+    tempRawFileName <- seqFiles$p1FileName
+    tempCpFileName <- cleanFileNames[, 1]
+    tempS1FileName <- cleanFileNames[, 3]
+    tempS2FileName <- cleanFileNames[, 4]
+    
+    cRaw <- paste("zcat ", dataDirectory, tempRawFileName, ' | wc -l', sep="")
+    cPair <- paste("zcat ", dataDirectory, tempCpFileName, ' | wc -l', sep="")
+    cS1 <- paste("zcat ", dataDirectory, tempS1FileName, ' | wc -l', sep="")
+    cS2 <- paste("zcat ", dataDirectory, tempS2FileName, ' | wc -l', sep="")
+    
+    readCounts <- data.frame("sampleName" = seqFiles$sampleName, 
+                             "rawReadPairs" = NA,
+                             "cleanReadPairs" = NA,
+                             "cleanReadSingles" = NA,
+                             "pctCleanPairs" = NA,
+                             "pctCleanTotal" = NA)
+    for (i in 1:length(seqFiles$sampleName)) {
+      numRaw <- as.numeric(system(cRaw[i], intern=T))/4
+      numPair <- as.numeric(system(cPair[i], intern=T))/4
+      numS1 <- as.numeric(system(cS1[i], intern=T))/4
+      numS2 <- as.numeric(system(cS2[i], intern=T))/4
+      totalS <- numS1 + numS2
+      readCounts[i, 2:6] <- c(numRaw, numPair, totalS, numPair / numRaw, (numPair + totalS) / numRaw)
+    }
+    write.csv(readCounts, file=paste(dataDirectory, "fileSummary.csv", sep=""), quote=F, row.names=F)
+  }
+
+  # Load calculated values
+  rcTable <- read.csv(paste(dataDirectory, "fileSummary.csv", sep=""), stringsAsFactors=F)
+  rcTable <- rcTable[match(sn, rcTable$sampleName),]
+  # Double underscore is a special character, remove them.
+  rcTable$sampleName <- gsub(rcTable$sampleName, pattern="__", replacement="_")
+  row.names(rcTable) <- rcTable[,1]
+  rcTable <- rcTable[, -1]
+  pandoc.table(rcTable, split.tables = 100, style = "simple", 
+               caption = "This table shows the number and percent of reads before and 
+                         after read filtering and trimming.")
+}
+
+```
+
+
+The following table shows the association between the samples and the original data files.
+
+```{r, echo = FALSE, results = "asis", message = FALSE, warning = FALSE}
+fnTable <- as.data.frame(seqFiles[match(sn, seqFiles$sampleName), ])
+fnTable$sampleName <- gsub(fnTable$sampleName, pattern="__", replacement="_")
+row.names(fnTable) <- fnTable$sampleName
+fnTable <- fnTable[, -1]
+colnames(fnTable) <- c("first end filename", "second end filename", "sample type")
+pandoc.table(fnTable, split.tables = 100, style = "simple", 
+             caption = "This table shows the association between the samples 
+                       and the raw data files.")
+```
+
+A quality report for each raw data file was generated using FastQC and is available in the folder `r dataDirectory`. The raw data consists of 50bp paired end reads. The reads were mapped to the reference genome using Bowtie2.
+
+```{r, echo = FALSE, results = "asis", message = FALSE, warning = FALSE}
+if (mapReads){
+  tmp <- mapExtract(cleaned = useCleanReads, sn=sn)
+  colnames(tmp) <- gsub(colnames(tmp), pattern="__", replacement="_")
+  pandoc.table(tmp, split.tables = 100, style = "simple", 
+               caption = 'This table shows the number of reads present for each sample 
+                         and the overall alignment rate calculated by bowtie2.')
+}
+
+```
+
+The *`r species`* reference genome was provided by `r provider` and was downloaded from `r genomeSourceFiles`. The mapped reads were converted to the sorted BAM file format using Samtools.
+
+\newpage
+
+## Figures for QC
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, fig.height = 9, dev='cairo_pdf'}
+
+a <- as.data.frame(corMatrix)
+colnames(a) <- seqFiles$sampleName[match(colnames(corMatrix), sbamFileName)]
+row.names(a) <- seqFiles$sampleName[match(row.names(corMatrix), sbamFileName)]
+a <- a[which(match(row.names(a), sn, nomatch=0)>0), which(match(colnames(a), sn, nomatch=0)>0)]
+
+row.names(a) <- gsub(row.names(a), pattern="__", replacement="_")
+colnames(a) <- gsub(colnames(a), pattern="__", replacement="_")
+for(i in 2:nrow(a)){
+  for(j in 1:(i-1)){
+    a[i, j] <- a [j, i]
+  }
+}
+heatmap_2(as.matrix(a), Rowv=NA, Colv=NA, scale="none", legend=2, legfrac=6)
+
+
+```
+
+**Figure 1.** This heatmap shows the pairwise Pearson correlation coefficient between sample coverage profiles.
+
+
