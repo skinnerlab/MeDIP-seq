@@ -55,7 +55,7 @@ if (generateFastQC) {
 for (i in 1:length(seqFiles$sampleName)) {
   if (cleanReads) {
     # run Trimmomatic
-    system(paste("java -jar /apps/Trimmomatic-0.36/trimmomatic-0.36.jar ", 
+    system(paste("java -jar /apps/Trimmomatic-0.39/trimmomatic-0.39.jar ", 
                  "PE ", "-threads ", numThreads, " -phred33 ", 
                  dataDirectory, seqFiles$p1FileName[i], " ", 
                  dataDirectory, seqFiles$p2FileName[i], " ", 
@@ -63,7 +63,7 @@ for (i in 1:length(seqFiles$sampleName)) {
                  dataDirectory, cleanFileNames$cs1FileName[i], " ", 
                  dataDirectory, cleanFileNames$cp2FileName[i], " ", 
                  dataDirectory, cleanFileNames$cs2FileName[i], " ",
-                 "ILLUMINACLIP:/apps/Trimmomatic-0.36/adapters/TruSeq3-PE-2.fa:2:30:11:1:true ",
+                 "ILLUMINACLIP:/apps/Trimmomatic-0.39/adapters/TruSeq3-PE-2.fa:2:30:11:1:true ",
                  "TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:20", sep=""))
   }
 }

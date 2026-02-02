@@ -13,6 +13,8 @@ source("./functions/addAnnotationGFF.R")
 source("./functions/addAnnotationBiomart.R")
 ## Adds annotation to DMR table using BLAST
 source("./functions/addAnnotationBlast.R")
+## Adds annotation to DMR table using NCBI
+source("./functions/addAnnotationNCBI.R")
 ## Extracts reference sequence corresponding to DMR
 source("./functions/dmr2seq.R")
 ## Finds a custom category for a gene using homologs
@@ -68,6 +70,9 @@ source("./functions/identifyZero.R")
 source("./functions/tablify.R")
 ## Functions to clean up annotations and dmrTables
 source("./functions/annTab.R")
+## Functions to clean up annotations and dmrTables
+source("./functions/expandedOverlap.R")
+
 
 ## These are no longer used. I've kept them in this file for documentation and on the off 
 ## chance they become useful.

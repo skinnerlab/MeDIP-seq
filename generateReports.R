@@ -29,7 +29,7 @@ for (i in 1:length(standardReport)){
   
   reportFileName <- paste(resultsDirectory, standardReport, "/", gsub(" ", "_", projectName),
                           "_", analysisName, "_", standardPvalues[i], 
-                          "_report2.pdf", sep = "")
+                          "_report.pdf", sep = "")
   save(analysisName, reportPvalue, cVar, cpgMax, lenMax, topN, mrs,
        file = paste(codeDirectory, "/reportValues.Rdata", sep = ""))
   render(input = "medipReport.Rmd", output_file = reportFileName[i])

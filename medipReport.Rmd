@@ -64,37 +64,43 @@ The samples `r paste(seqFiles$sampleName[comparison[[an]]$mset1], collapse = ", 
 ```{r, echo = FALSE, results = "asis", message = FALSE, warning = FALSE}
 
 if (useCleanReads) {
-  readCounts <- data.frame("sampleName" = sn, 
-                           "rawReadPairs" = NA,
-                           "cleanReadPairs" = NA,
-                           "cleanReadSingles" = NA,
-                           "pctCleanPairs" = NA,
-                           "pctCleanTotal" = NA)
-  for (i in 1:length(sn)) {
-    subInd <- match(sn[i], seqFiles$sampleName)
-    tempRawFileName <- seqFiles$p1FileName[subInd]
-    tempCpFileName <- cleanFileNames[subInd, 1]
-    tempS1FileName <- cleanFileNames[subInd, 3]
-    tempS2FileName <- cleanFileNames[subInd, 4]
-  
+  ## First check to see if values are precalculated. Calculate if necessary
+  if (is.na(match("fileSummary.csv", dir(dataDirectory)))){
+    tempRawFileName <- seqFiles$p1FileName
+    tempCpFileName <- cleanFileNames[, 1]
+    tempS1FileName <- cleanFileNames[, 3]
+    tempS2FileName <- cleanFileNames[, 4]
+    
     cRaw <- paste("zcat ", dataDirectory, tempRawFileName, ' | wc -l', sep="")
     cPair <- paste("zcat ", dataDirectory, tempCpFileName, ' | wc -l', sep="")
     cS1 <- paste("zcat ", dataDirectory, tempS1FileName, ' | wc -l', sep="")
     cS2 <- paste("zcat ", dataDirectory, tempS2FileName, ' | wc -l', sep="")
     
-    numRaw <- as.numeric(system(cRaw, intern=T))/4
-    numPair <- as.numeric(system(cPair, intern=T))/4
-    numS1 <- as.numeric(system(cS1, intern=T))/4
-    numS2 <- as.numeric(system(cS2, intern=T))/4
-  
-    totalS <- numS1 + numS2
-    readCounts[i, 2:6] <- c(numRaw, numPair, totalS, numPair / numRaw, (numPair + totalS) / numRaw)
+    readCounts <- data.frame("sampleName" = seqFiles$sampleName, 
+                             "rawReadPairs" = NA,
+                             "cleanReadPairs" = NA,
+                             "cleanReadSingles" = NA,
+                             "pctCleanPairs" = NA,
+                             "pctCleanTotal" = NA)
+    for (i in 1:length(seqFiles$sampleName)) {
+      numRaw <- as.numeric(system(cRaw[i], intern=T))/4
+      numPair <- as.numeric(system(cPair[i], intern=T))/4
+      numS1 <- as.numeric(system(cS1[i], intern=T))/4
+      numS2 <- as.numeric(system(cS2[i], intern=T))/4
+      totalS <- numS1 + numS2
+      readCounts[i, 2:6] <- c(numRaw, numPair, totalS, numPair / numRaw, (numPair + totalS) / numRaw)
+    }
+    write.csv(readCounts, file=paste(dataDirectory, "fileSummary.csv", sep=""), quote=F, row.names=F)
   }
+
+  # Load calculated values
+  rcTable <- read.csv(paste(dataDirectory, "fileSummary.csv", sep=""), stringsAsFactors=F)
+  rcTable <- rcTable[match(sn, rcTable$sampleName),]
   # Double underscore is a special character, remove them.
-  readCounts$sampleName <- gsub(readCounts$sampleName, pattern="__", replacement="_")
-  row.names(readCounts) <- readCounts[,1]
-  readCounts <- readCounts[, -1]
-  pandoc.table(readCounts, split.tables = 100, style = "simple", 
+  rcTable$sampleName <- gsub(rcTable$sampleName, pattern="__", replacement="_")
+  row.names(rcTable) <- rcTable[,1]
+  rcTable <- rcTable[, -1]
+  pandoc.table(rcTable, split.tables = 100, style = "simple", 
                caption = "This table shows the number and percent of reads before and 
                          after read filtering and trimming.")
 }
@@ -221,7 +227,7 @@ plotChromosomes(siteTable = dmrList, chrLengths = chrLengths,
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE, fig.height = 6, fig.width=6, dev='cairo_pdf'}
 if (is.null(methList[[pvc]]$cpgDensity)) {
-  methList[[pvc]] <- calcCpGdensity(modifyStop(methList[[pvc]], refGenom=eval(parse(text = referenceName)), maxDMR=1000000), maxDMR=100000)
+  methList[[pvc]] <- calcCpGdensity(modifyStop(methList[[pvc]], refGenom=eval(parse(text = referenceName)), maxDMR=1000000), maxDMR=1000000)
 }
 par(mar = c(5, 5, 2, 1) + 0.1, lwd=2)
 if (is.na(cpgMax)){
@@ -431,7 +437,7 @@ hist(methList[[pvc]]$maxLFC, breaks=20, xlab="Maximum DMR log fold change", ylab
 
 ```
 
-**Figure 10a.** This figure is a histogram showing the maximum log fold change in expression of DMR at an edgeR p-value < `r format(reportPvalue, scientific = T)`. Positive values indicate increased methylation in the `r paste(unique(seqFiles$ctFlag[comparison[[an]]$mset2]), collapse=",")` treatment group. Negative values indicate increased methylation in the `r paste(unique(seqFiles$ctFlag[comparison[[an]]$mset1]), collapse=",")` treatment group.
+**Figure 10a.** This figure is a histogram showing the maximum log fold change in expression of DMR at an edgeR p-value < `r format(reportPvalue, scientific = T)`. Positive values indicate increased methylation in the `r paste(unique(seqFiles$ctFlag[comparison[[an]]$mset1]), collapse=",")` treatment group. Negative values indicate increased methylation in the `r paste(unique(seqFiles$ctFlag[comparison[[an]]$mset2]), collapse=",")` treatment group.
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE, fig.height = 6, dev='cairo_pdf'}
 
@@ -457,7 +463,6 @@ plot(pca.result$x[,1], pca.result$x[,2], col=as.numeric(as.factor(sample.type)),
      pch=19, cex=1.4, cex.axis=1.4, cex.lab=1.4)
 legend("topright", unique(sample.type), fill=unique(as.numeric(as.factor(sample.type))))
 
-
 ```
 
 **Figure 11.** This figure shows the samples plotted by the first two principal components. The underlying data is the RPKM read depth for all genomic windows.
@@ -466,18 +471,21 @@ legend("topright", unique(sample.type), fill=unique(as.numeric(as.factor(sample.
 
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE, fig.height = 6, dev='cairo_pdf'}
-
-pvt.filter <- which(methResults$edgeR.p.value < reportPvalue)
-raw.table <- methResults[pvt.filter,grep(x=colnames(methResults), pattern='bam.rpkm')]
-colnames(raw.table) <- sn
-sample.type <- seqFiles$ctFlag[match(sn, seqFiles$sampleName)]
-
-pca.result <- prcomp(t(raw.table))
-plot(pca.result$x[,1], pca.result$x[,2], col=as.numeric(as.factor(sample.type)),
-     xlab = paste("PC1 - ", summary(pca.result)$importance[2,1]*100, "%", sep=""),
-     ylab = paste("PC2 - ", summary(pca.result)$importance[2,2]*100, "%", sep=""),
-     pch=19, cex=1.4, cex.axis=1.4, cex.lab=1.4)
-legend("topright", unique(sample.type), fill=unique(as.numeric(as.factor(sample.type))))
+# 
+# pvt.filter <- which(methResults$edgeR.p.value < reportPvalue)
+# raw.table <- methResults[pvt.filter,grep(x=colnames(methResults), pattern='bam.rpkm')]
+# colnames(raw.table) <- sn
+# #sample.type <- seqFiles$ctFlag[match(sn, seqFiles$sampleName)]
+# sample.type <- numeric(ncol(raw.table))
+# sample.type[match(seqFiles$sampleName[comparison[[an]]$mset1], sn)] <- "Sample group 1"
+# sample.type[match(seqFiles$sampleName[comparison[[an]]$mset2], sn)] <- "Sample group 2"
+# 
+# pca.result <- prcomp(t(raw.table))
+# plot(pca.result$x[,1], pca.result$x[,2], col=as.numeric(as.factor(sample.type)),
+#      xlab = paste("PC1 - ", summary(pca.result)$importance[2,1]*100, "%", sep=""),
+#      ylab = paste("PC2 - ", summary(pca.result)$importance[2,2]*100, "%", sep=""),
+#      pch=19, cex=1.4, cex.axis=1.4, cex.lab=1.4)
+# legend("topright", unique(sample.type), fill=unique(as.numeric(as.factor(sample.type))), bty="n")
 
 
 ```

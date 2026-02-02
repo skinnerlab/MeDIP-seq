@@ -16,14 +16,23 @@ if (annotationType == "biomart") {
                               dataset = biomartDataset, 
                               host = biomartHost)
 }
+if (annotationType == "ncbi"){
+  library(ape)
+  ann <- read.gff(annNCBI)
+  idc <- read.csv(idcNCBI, stringsAsFactors=F)
+  panther <- read.table(pantherFile, stringsAsFactors=F, sep="\t", comment.char="", quote="")
+  plc <- read.csv(plcFile, stringsAsFactors=F)
+  ann$chr <- idc$chr[match(ann$seqid, idc$refseq)]
+  ann$stop <- ann$end
+}
 
 for (analysis in 1:length(comparisonNames)) {
-  load(paste(resultsDirectory, comparisonNames[analysis], "/methLists.RData", sep = ""))
   pvt <- ann.pvt[analysis]; pvi <- which(pValues==pvt)
   ####################
   ## Add Annotation ##
   ####################
   if (!is.na(pvt)){
+    load(paste(resultsDirectory, comparisonNames[analysis], "/methLists.RData", sep = ""))
     annMat <- list()
     # add Annotation information for each DMR. This is separate from the loop so that the 
     # import.gff and getAnnotation functions are only run once
@@ -42,34 +51,39 @@ for (analysis in 1:length(comparisonNames)) {
       annMat[[pvi]] <- a$annMat
     }
   
-       
-    ## Re-calculate twoWindow DMRs to include annotation information
-         
-    ##################################
-    ## Multiple significant windows ##
-    ##################################
-    methList2p <- lapply(methList, function(i) {
-      if(!is.null(i)) {
-        if (!is.na(i)) {
-          i <- i[which(i$numSigWin >= 2), ]
-        } else {
-          i <- NA
-        }
-      } else {
-        i <- NULL
-      }
-    })
-    MTCmethList2p <- lapply(MTCmethList, function(i) {
-      if (!is.null(i)) {
-        if (!is.na(i)) {
-          i <- i[which(i$numSigWin >= 2),]
-        } else {
-          i <- NA
-        }
-      } else {
-        i <- NULL
-      }
-    })
+    if (annotationType == "ncbi") {
+      a <- addAnnotationNCBI(dmrList = methList[[pvi]], extension = 10000,
+                                chrPrefix = chrPrefix, ann=ann, panther=panther, plc=plc)
+      methList[[pvi]] <- a$dmrList
+      annMat[[pvi]] <- a$annMat
+    }
+    # ## Re-calculate twoWindow DMRs to include annotation information
+    #      
+    # ##################################
+    # ## Multiple significant windows ##
+    # ##################################
+    # methList2p <- lapply(methList, function(i) {
+    #   if(!is.null(i)) {
+    #     if (!is.na(i)) {
+    #       i <- i[which(i$numSigWin >= 2), ]
+    #     } else {
+    #       i <- NA
+    #     }
+    #   } else {
+    #     i <- NULL
+    #   }
+    # })
+    # MTCmethList2p <- lapply(MTCmethList, function(i) {
+    #   if (!is.null(i)) {
+    #     if (!is.na(i)) {
+    #       i <- i[which(i$numSigWin >= 2),]
+    #     } else {
+    #       i <- NA
+    #     }
+    #   } else {
+    #     i <- NULL
+    #   }
+    # })
          
     save(methList, methList2p, MTCmethList, MTCmethList2p, 
          dmrNumberTable, MTCdmrNumberTable, annMat,

@@ -173,11 +173,12 @@ diff.method <- "edgeR"
 MeDIP <- FALSE
 CNV <- FALSE
 CScalc <- FALSE
+paired.reads <- TRUE
 
 # This vector holds all raw p-value thresholds to use for the analyses. 
 pValues <- c(1e-03, 1e-04, 1e-05, 1e-06, 1e-07)
 # This vector holds all multiple testing adjusted p-value thresholds to use for the analyses. 
-MTCpValues <- c(0.1, 0.05, 0.01, 1e-3)
+MTCpValues <- c(0.2,0.1, 0.05, 0.01, 1e-3)
 
 ####################
 ## DMR parameters ##
@@ -203,13 +204,19 @@ maxDMRnum <- 10000
 ## These variables hold information on the annotation. Three types of annotation are possible.
 ## The annotation is still being incorporated into the pipeline.
 
-# The annotation can be from Biomart ("biomart"), from a GFF file ("gff"), or from BLAST results
+# The annotation can be from NCBI ("ncbi"), Biomart ("biomart"), from a GFF file ("gff"), or from BLAST results
 # ("blast").
 annotationType <- "gff"
 # If annotation is from a GFF file, include the filename.
 annotationGFF <- ""
 # If the chromosomes in the annotation file have an additional prefix, specify here.
 chrPrefix <- ""
+
+# If annotations are from ncbi, provide GFF file location (will be downloaded here if specified)
+annNCBI <- ""
+idcNCBI <- "" # This file allows conversion from NCBI chromosomes to standard chromosome names
+pantherFile <- "" # panther file used to perform categorization
+plcFile <- "" # lab category file used to perform categorization
 
 # If annotation is from Biomart, include biomaRt dataset information.
 biomartHost <- ""

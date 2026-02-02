@@ -26,6 +26,7 @@ processedBamFiles <- lapply(X = paste(dataDirectory, sbamFileName, sep = ""),
                             extend = extend, 
                             shift = shift, 
                             uniq = uniq, 
+                            paired = paired.reads,
                             window_size = ws, 
                             chr.select = chr.select)
 

@@ -26,13 +26,13 @@ dmr2seq <- function(dmrTable, bsgenomeName, extendEdges=0){
      ## To avoid a mysterious bug that eventually results in a segmentation fault, 
      ## the loop below replaces the more simple code commented here. I don't know why
      ## the simple code fails, but it does in a mysterious way.
-     # seqs <- DNAStringSet(seqs, use.names=T)
-     a <- DNAStringSet(rep("N", length(seqs)))
-     for (i in 1:length(seqs)) {
-          a[[i]] <- seqs[[i]]
-     }
-     seqs <- a
-     names(seqs) <- dmrTable$ID
+     seqs <- DNAStringSet(seqs, use.names=T)
+     # a <- DNAStringSet(rep("N", length(seqs)))
+     # for (i in 1:length(seqs)) {
+     #      a[[i]] <- seqs[[i]]
+     # }
+     # seqs <- a
+     # names(seqs) <- dmrTable$ID
 
      return(seqs)
 }
